@@ -5,30 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>தமிழ் நேரம் — நாழிகை • சாமம்</title>
 
+  <!-- Tiro Tamil font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tiro+Tamil:ital@0;1&display=swap" rel="stylesheet">
+
   <!-- Apple-ish / OpenAI-ish clean theme -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Tiro+Tamil:ital@0;1&display=swap" rel="stylesheet">
   <style>
     :root{
       --bg0:#0b0c10;
       --bg1:#0f1117;
       --card: rgba(255,255,255,.06);
-      --card2: rgba(255,255,255,.08);
       --stroke: rgba(255,255,255,.12);
       --text:#f5f7ff;
       --muted: rgba(245,247,255,.72);
       --muted2: rgba(245,247,255,.56);
       --shadow: 0 18px 70px rgba(0,0,0,.55);
       --radius: 18px;
-      --radius2: 14px;
       --focus: rgba(255,255,255,.22);
     }
 
     *{ box-sizing:border-box; }
     body{
       margin:0;
-      font-family: "Tiro Tamil", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      font-family: "Tiro Tamil", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
       color:var(--text);
       background:
         radial-gradient(1200px 900px at 20% -10%, rgba(120,90,255,.35), transparent 60%),
@@ -46,19 +46,9 @@
       gap:14px; margin-bottom: 16px;
     }
 
-    .title{
-      display:flex; flex-direction:column; gap:6px;
-    }
-    h1{
-      font-size: 20px; margin:0;
-      letter-spacing: .2px;
-    }
-    .subtitle{
-      margin:0;
-      color:var(--muted);
-      font-size: 13px;
-      line-height:1.4;
-    }
+    .title{ display:flex; flex-direction:column; gap:6px; }
+    h1{ font-size: 20px; margin:0; letter-spacing: .2px; }
+    .subtitle{ margin:0; color:var(--muted); font-size: 13px; line-height:1.4; }
 
     .pillrow{ display:flex; flex-wrap:wrap; gap:8px; }
     .pill{
@@ -89,18 +79,11 @@
       gap: 12px;
       align-items:end;
     }
-    @media (max-width: 820px){
-      .controls{ grid-template-columns: 1fr; }
-    }
+    @media (max-width: 820px){ .controls{ grid-template-columns: 1fr; } }
 
-    label{
-      display:block;
-      color: var(--muted);
-      font-size: 12px;
-      margin: 0 0 8px;
-    }
+    label{ display:block; color: var(--muted); font-size: 12px; margin: 0 0 8px; }
 
-    .input, .btn, .toggle{
+    .input, .btn{
       border-radius: 14px;
       border: 1px solid var(--stroke);
       background: rgba(255,255,255,.06);
@@ -112,105 +95,32 @@
     }
     .input:focus, .btn:focus{ border-color: var(--focus); box-shadow: 0 0 0 4px rgba(255,255,255,.08); }
 
-    .btn{
-      cursor:pointer;
-      font-weight: 650;
-      background: rgba(255,255,255,.10);
-      transition: transform .06s ease, background .12s ease;
-    }
-    .btn:hover{ background: rgba(255,255,255,.14); }
-    .btn:active{ transform: translateY(1px); }
+    .btn{ cursor:pointer; font-weight: 650; background: rgba(255,255,255,.10); transition: transform .06s ease, background .12s ease; }
+    .btn:hover{ background: rgba(255,255,255,.14); } .btn:active{ transform: translateY(1px); }
 
-    .row2{
-      display:flex; align-items:center; justify-content:space-between;
-      gap: 12px;
-      margin-top: 12px;
-      flex-wrap: wrap;
-    }
+    .row2{ display:flex; align-items:center; justify-content:space-between; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
 
-    .toggleWrap{
-      display:flex; align-items:center; gap:10px;
-      color: var(--muted);
-      font-size: 13px;
-      user-select:none;
-    }
+    .toggleWrap{ display:flex; align-items:center; gap:10px; color: var(--muted); font-size: 13px; user-select:none; }
     .toggleWrap input{ transform: scale(1.05); }
 
-    .gridOut{
-      display:grid;
-      grid-template-columns: 1.25fr 0.75fr;
-      gap: 12px;
-      margin-top: 12px;
-    }
-    @media (max-width: 900px){
-      .gridOut{ grid-template-columns: 1fr; }
-    }
+    .gridOut{ display:grid; grid-template-columns: 1.25fr 0.75fr; gap: 12px; margin-top: 12px; }
+    @media (max-width: 900px){ .gridOut{ grid-template-columns: 1fr; } }
 
-    .bigLine{
-      font-size: 30px;
-      font-weight: 850;
-      line-height: 1.18;
-      letter-spacing: .2px;
-      margin: 6px 0 4px;
-    }
-    .subLine{
-      font-size: 16px;
-      color: var(--muted);
-      margin: 6px 0 0;
-      line-height: 1.45;
-    }
-    .meta{
-      color: var(--muted2);
-      font-size: 13px;
-      line-height: 1.55;
-    }
-
-    .note{
-      border-radius: var(--radius);
-      border: 1px dashed rgba(255,255,255,.18);
-      background: rgba(0,0,0,.18);
-      padding: 12px;
-    }
-    code{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 12px;
-      color: rgba(245,247,255,.88);
-    }
+    .bigLine{ font-size: 30px; font-weight: 850; line-height: 1.18; letter-spacing: .2px; margin: 6px 0 4px; }
+    .subLine{ font-size: 16px; color: var(--muted); margin: 6px 0 0; line-height: 1.45; }
+    .meta{ color: var(--muted2); font-size: 13px; line-height: 1.55; }
+    .note{ border-radius: var(--radius); border: 1px dashed rgba(255,255,255,.18); background: rgba(0,0,0,.18); padding: 12px; }
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; color: rgba(245,247,255,.88); }
 
     /* Search dropdown */
     .searchWrap{ position: relative; }
-    .results{
-      position:absolute;
-      top: calc(100% + 8px);
-      left:0; right:0;
-      background: rgba(18,20,28,.92);
-      border: 1px solid var(--stroke);
-      border-radius: 14px;
-      overflow:hidden;
-      box-shadow: 0 22px 80px rgba(0,0,0,.6);
-      backdrop-filter: blur(14px);
-      max-height: 320px;
-      overflow-y: auto;
-      z-index: 20;
-      display:none;
-    }
+    .results{ position:absolute; top: calc(100% + 8px); left:0; right:0; background: rgba(18,20,28,.92); border: 1px solid var(--stroke); border-radius: 14px; overflow:hidden; box-shadow: 0 22px 80px rgba(0,0,0,.6); backdrop-filter: blur(14px); max-height: 320px; overflow-y: auto; z-index: 20; display:none; }
     .results.show{ display:block; }
-    .item{
-      padding: 10px 12px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      cursor:pointer;
-    }
-    .item:last-child{ border-bottom:none; }
-    .item:hover{ background: rgba(255,255,255,.08); }
-    .item .name{ font-weight: 650; font-size: 13px; }
-    .item .desc{ color: var(--muted2); font-size: 12px; margin-top: 2px; line-height:1.35; }
+    .item{ padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,.08); cursor:pointer; }
+    .item:last-child{ border-bottom:none; } .item:hover{ background: rgba(255,255,255,.08); }
+    .item .name{ font-weight: 650; font-size: 13px; } .item .desc{ color: var(--muted2); font-size: 12px; margin-top: 2px; line-height:1.35; }
 
-    .warn{
-      margin-top: 10px;
-      color: rgba(255,210,120,.92);
-      font-size: 12px;
-      line-height:1.45;
-    }
+    .warn{ margin-top: 10px; color: rgba(255,210,120,.92); font-size: 12px; line-height:1.45; }
   </style>
 </head>
 
@@ -221,14 +131,15 @@
         <h1>தமிழ் நேர கணக்கு</h1>
         <p class="subtitle">
           நகரத்தை தேடி தேர்வு செய்யுங்கள். அந்த இடத்தின் <b>சூரிய உதயம்</b> அடிப்படையில்
-          <b>பகல்/இரவு • சாமம் • நாழிகை • நிமிடம் • வினாடி (vinādi)</b> கணக்கிடப்படும்.
+          <b>பகல்/இரவு • சாமம் • நாழிகை • நிமிடம் • வினாடி • தமிழ் மாதம் • பருவம் • திதி</b> கணக்கிடப்படும்.
         </p>
         <div class="pillrow" aria-hidden="true">
           <span class="pill">பகல் / இரவு</span>
           <span class="pill">சாமம்</span>
           <span class="pill">நாழிகை</span>
-          <span class="pill">வினாடி (vinādi)</span>
-          <span class="pill">60 நாழிகை • 8 சாமம்</span>
+          <span class="pill">வினாடி</span>
+          <span class="pill">தமிழ் மாதம்</span>
+          <span class="pill">திதி (approx.)</span>
         </div>
       </div>
     </header>
@@ -266,25 +177,27 @@
             <div class="cardInner">
               <div class="meta" id="metaLine">—</div>
               <div class="bigLine" id="mainLine">—</div>
+              <div class="subLine" id="extraLine">—</div>
               <div class="subLine" id="cycleLine">—</div>
+              <div class="subLine" id="tithiLine" style="margin-top:8px; font-weight:700;">—</div>
               <div class="warn" id="tzWarn" style="display:none;"></div>
             </div>
           </div>
 
           <div class="note">
-            <div class="meta" style="font-weight:700; margin-bottom:8px;">Calculations</div>
+            <div class="meta" style="font-weight:700; margin-bottom:8px;">Calculations & Notes</div>
             <div class="meta" id="calcNote">—</div>
             <div class="meta" style="margin-top:10px;">
               <code>1 நாழிகை = 24 நிமிடம்</code><br/>
               <code>1 சாமம் = 180 நிமிடம் (3 மணி)</code><br/>
-              <code>1 நாழிகை = 60 vinādi ⇒ 1 vinādi = 24 seconds</code>
+              <code>1 நாழிகை = 60 vinādi ⇒ 1 vinādi = 24 seconds</code><br/>
+              <small style="color:var(--muted);">Tithi shown is an approximation (based on Moon illumination from SunCalc). For precise tithi use a full Panchangam calculation (sun/moon ecliptic longitudes).</small>
             </div>
           </div>
         </div>
 
       </div>
     </div>
-
   </div>
 
   <!-- SunCalc -->
@@ -292,12 +205,14 @@
 
   <script>
     /**
-     * IMPORTANT NOTE (timezones):
-     * - We can geocode any city to lat/lon using OpenStreetMap Nominatim (no API key).
-     * - But getting the city's exact timezone from lat/lon needs a timezone API (usually needs a key).
-     * - Best effort here:
-     *    - If the city is in India (country_code = "in"), we use Asia/Kolkata (IST) for display & "Now".
-     *    - Otherwise we fall back to your device timezone and show a small warning.
+     * Enhanced page:
+     * - Tamil month (solar) boundaries (approx)
+     * - Tamil season mapping
+     * - Tamil weekday
+     * - Tamil date number (solar month day)
+     * - Approximate tithi (uses Moon illumination; flagged as approx)
+     *
+     * Notes: exact tithi calculation requires precise ecliptic longitudes; this page uses a practical approximation.
      */
 
     const DEFAULT = {
@@ -307,6 +222,52 @@
       country_code: "in"
     };
 
+    let selected = { ...DEFAULT };
+
+    // Tamil solar months (approx Sankranti dates)
+    const TAMIL_MONTHS = [
+      { name: "சித்திரை",  start: { m: 4,  d: 14 } },
+      { name: "வைகாசி",    start: { m: 5,  d: 15 } },
+      { name: "ஆனி",       start: { m: 6,  d: 15 } },
+      { name: "ஆடி",       start: { m: 7,  d: 16 } },
+      { name: "ஆவணி",     start: { m: 8,  d: 17 } },
+      { name: "புரட்டாசி", start: { m: 9,  d: 17 } },
+      { name: "ஐப்பசி",     start: { m: 10, d: 17 } },
+      { name: "கார்த்திகை", start: { m: 11, d: 16 } },
+      { name: "மார்கழி",   start: { m: 12, d: 16 } },
+      { name: "தை",        start: { m: 1,  d: 14 } },
+      { name: "மாசி",      start: { m: 2,  d: 13 } },
+      { name: "பங்குனி",   start: { m: 3,  d: 14 } }
+    ];
+
+    // Tamil seasons map
+    const TAMIL_SEASONS = {
+      "சித்திரை": "இளவேனில்",
+      "வைகாசி": "இளவேனில்",
+      "ஆனி": "முதுவேனில்",
+      "ஆடி": "முதுவேனில்",
+      "ஆவணி": "கார்காலம்",
+      "புரட்டாசி": "கார்காலம்",
+      "ஐப்பசி": "கூதிர்",
+      "கார்த்திகை": "கூதிர்",
+      "மார்கழி": "முன்பனி",
+      "தை": "முன்பனி",
+      "மாசி": "பின்பனி",
+      "பங்குனி": "பின்பனி"
+    };
+
+    // Weekday names in Tamil
+    const TAMIL_WEEKDAYS = {
+      0: "ஞாயிறு", // Sunday
+      1: "திங்கள்",
+      2: "செவ்வாய்",
+      3: "புதன்",
+      4: "வியாழன்",
+      5: "வெள்ளி",
+      6: "சனி"
+    };
+
+    // DOM
     const elSearch = document.getElementById("citySearch");
     const elResults = document.getElementById("results");
     const elTime = document.getElementById("timeInput");
@@ -316,13 +277,15 @@
 
     const metaLine  = document.getElementById("metaLine");
     const mainLine  = document.getElementById("mainLine");
+    const extraLine = document.getElementById("extraLine");
     const cycleLine = document.getElementById("cycleLine");
+    const tithiLine = document.getElementById("tithiLine");
     const calcNote  = document.getElementById("calcNote");
     const tzWarn    = document.getElementById("tzWarn");
 
-    let selected = { ...DEFAULT };
-
     function pad2(n){ return String(n).padStart(2,"0"); }
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+    function tamilOrdinal(n){ return `${n}வது`; }
 
     function tzForSelected(){
       return (selected.country_code === "in") ? "Asia/Kolkata" : Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -337,7 +300,6 @@
     }
 
     function datePartsInTZ(d, tz){
-      // returns {year, month, day, hour, minute, second} in that timezone
       const parts = new Intl.DateTimeFormat("en-CA", {
         timeZone: tz,
         year: "numeric", month: "2-digit", day: "2-digit",
@@ -362,20 +324,145 @@
       elTime.value = `${pad2(p.hour)}:${pad2(p.minute)}:${pad2(p.second)}`;
     }
 
-    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
-    function tamilOrdinal(n){ return `${n}வது`; }
+    // find tamil month object and its start date for the given year
+    function findTamilMonthStartDatesForYear(year) {
+      // returns array of { name, startDate }
+      return TAMIL_MONTHS.map(m => {
+        // handle months where start month number < next's => fine. For wrap cases we compute per year.
+        return {
+          name: m.name,
+          startDate: new Date(year, m.start.m - 1, m.start.d, 0, 0, 0, 0)
+        };
+      });
+    }
 
+    function getTamilMonth(date) {
+      const y = date.getFullYear();
+
+      for (let i = 0; i < TAMIL_MONTHS.length; i++) {
+        const curr = TAMIL_MONTHS[i];
+        const next = TAMIL_MONTHS[(i + 1) % 12];
+
+        const startDate = new Date(y, curr.start.m - 1, curr.start.d);
+        let endDate = new Date(y, next.start.m - 1, next.start.d - 1);
+
+        // handle year wrap (Dec → Jan)
+        if (curr.start.m > next.start.m) {
+          endDate = new Date(y + 1, next.start.m - 1, next.start.d - 1);
+        }
+
+        if (date >= startDate && date <= endDate) {
+          return { name: curr.name, startDate };
+        }
+      }
+
+      // fallback: if not found (edge-case), try checking previous year's late months
+      // try year-1 for months that start in Jan/Feb
+      const alt = TAMIL_MONTHS.find(m => {
+        const s = new Date(y-1, m.start.m -1, m.start.d);
+        const next = TAMIL_MONTHS[(TAMIL_MONTHS.indexOf(m) + 1) % 12];
+        const e = new Date(y-1, next.start.m -1, next.start.d -1);
+        return date >= s && date <= e;
+      });
+      if (alt) return { name: alt.name, startDate: new Date(y-1, alt.start.m -1, alt.start.d) };
+      return { name: "—", startDate: null };
+    }
+
+    // minutes/seconds helpers
     function minutesBetween(a,b){ return (b.getTime() - a.getTime()) / 60000; }
     function secondsBetween(a,b){ return (b.getTime() - a.getTime()) / 1000; }
 
+    // Tithi approximation:
+    // We'll use SunCalc.getMoonIllumination(date).phase (0..1, 0=new,0.5=full).
+    // Approx approach:
+    // - Map illumination fraction -> paksha (waxing/shukla if phase < 0.5, waning/krishna if >0.5)
+    // - Approx tithi index = floor(illuminationFraction * 30) + 1 (1..30)
+    // NOTE: This is an approximation. Exact tithi requires sun-moon longitude difference (12° steps).
+    function approximateTithi(date) {
+      const illum = SunCalc.getMoonIllumination(date);
+      const phase = illum.phase; // 0..1
+      // Decide paksha
+      const paksha = (phase <= 0.5) ? "சுக்ல பக்ஷம் (waxing)" : "கிருஷ்ண பக்ஷம் (waning)";
+      // convert phase to a 0..1 measure where 0 -> new moon, 0.5 -> full, 1 -> next new
+      // approximate tithi index (1..30)
+      let tIndex = Math.floor(phase * 30) + 1;
+      if (tIndex < 1) tIndex = 1;
+      if (tIndex > 30) tIndex = 30;
+      return { tIndex, paksha, phase, illum };
+    }
+
+    // --- UI functions & search ---
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+
+    // Nominatim search
+    let searchTimer = null;
+    function hideResults(){ elResults.classList.remove("show"); elResults.innerHTML = ""; }
+
+    function showResults(items){
+      elResults.innerHTML = "";
+      if (!items.length) { hideResults(); return; }
+      items.slice(0, 8).forEach(place => {
+        const div = document.createElement("div");
+        div.className = "item";
+        const title = place.display_name.split(",").slice(0, 2).join(",").trim();
+        div.innerHTML = `<div class="name">${escapeHtml(title)}</div><div class="desc">${escapeHtml(place.display_name)}</div>`;
+        div.addEventListener("click", () => {
+          selected = {
+            label: place.display_name,
+            lat: Number(place.lat),
+            lon: Number(place.lon),
+            country_code: (place.address && place.address.country_code) ? place.address.country_code.toLowerCase() : ""
+          };
+          elSearch.value = title;
+          hideResults();
+          setTimeInputToNow();
+          compute();
+        });
+        elResults.appendChild(div);
+      });
+      elResults.classList.add("show");
+    }
+
+    async function searchCity(q){
+      const query = q.trim();
+      if (query.length < 2) { hideResults(); return; }
+      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=8&q=${encodeURIComponent(query)}`;
+      try{
+        const res = await fetch(url, { headers: { "Accept": "application/json" }});
+        const data = await res.json();
+        showResults(Array.isArray(data) ? data : []);
+      }catch(e){ hideResults(); }
+    }
+
+    // time & tz helpers (best-effort)
+    function tzForSelected(){
+      return (selected.country_code === "in") ? "Asia/Kolkata" : Intl.DateTimeFormat().resolvedOptions().timeZone;
+    }
+    function datePartsInTZ(d, tz){
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: tz,
+        year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+        hour12: false
+      }).formatToParts(d);
+      const get = (type) => parts.find(p => p.type === type)?.value;
+      return { year: Number(get("year")), month: Number(get("month")), day: Number(get("day")), hour: Number(get("hour")), minute: Number(get("minute")), second: Number(get("second")) };
+    }
+
+    function setTimeInputToNow(){
+      const tz = tzForSelected();
+      const p = datePartsInTZ(new Date(), tz);
+      elTime.value = `${pad2(p.hour)}:${pad2(p.minute)}:${pad2(p.second)}`;
+    }
+
     function buildTargetDateInLocalDay(){
-      // We compute sunrise/sunset using JS Date in your browser.
-      // For India (IST users), this matches well. For non-India, we warn.
+      // Best-effort: use device date for day; use selected time to build today's local time
       const now = new Date();
       const [hh, mm, ss] = (elTime.value || "00:00:00").split(":").map(Number);
       return new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh||0, mm||0, ss||0, 0);
     }
 
+    // compute function (main)
     function compute(){
       const tz = tzForSelected();
       tzWarn.style.display = "none";
@@ -383,19 +470,18 @@
         tzWarn.style.display = "block";
         tzWarn.textContent =
           "Note: இந்த நகரத்தின் சரியான timezone-ஐ lat/lon மூலம் பெற API key தேவைப்படும். " +
-          "இப்போது உங்கள் device timezone-ஐ பயன்படுத்தி நேரம்/தேதி காட்டப்படுகிறது. " +
-          "Sunrise கணக்கு (lat/lon) சரியாக இருக்கும்.";
+          "இப்பொழுது உங்கள் device timezone-ஐ பயன்படுத்தி நேரம்/தேதி காட்டப்பட்டுள்ளது. Sunrise கணக்கு(lat/lon) சரியாக இருக்கும்.";
       }
 
       const target = buildTargetDateInLocalDay();
 
-      // Sunrise/sunset for "today" at selected lat/lon
+      // Sunrise/sunset for today at selected lat/lon
       const today = new Date();
       const timesT = SunCalc.getTimes(today, selected.lat, selected.lon);
       let sunrise = timesT.sunrise;
       let sunset  = timesT.sunset;
 
-      // Wrap cycle if before sunrise
+      // Optional wrap — if target before today's sunrise, use yesterday's cycle
       if (elWrap.checked && target < sunrise) {
         const y = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
         const timesY = SunCalc.getTimes(y, selected.lat, selected.lon);
@@ -406,17 +492,17 @@
       const isPagal = (target >= sunrise && target < sunset);
       const pagalIravu = isPagal ? "பகல்" : "இரவு";
 
-      // Samam number within Pagal/Iravu: base = sunrise or sunset; each 180 minutes
+      // Samam within Pagal/Iravu
       const base = isPagal ? sunrise : sunset;
       const minFromBase = minutesBetween(base, target);
       let samamNo = Math.floor(minFromBase / 180) + 1;
       samamNo = clamp(samamNo, 1, 4);
 
-      // Delta since sunrise
+      // Delta since sunrise (primary)
       const deltaMin = minutesBetween(sunrise, target);
       const deltaSec = secondsBetween(sunrise, target);
 
-      // Day-cycle values (from sunrise): 60 nazhigai, 8 samam
+      // Day-cycle values
       const nazhigaiExact = deltaMin / 24.0;
       let dayNazhiNo = Math.floor(nazhigaiExact) + 1;
       dayNazhiNo = clamp(dayNazhiNo, 1, 60);
@@ -430,54 +516,98 @@
       const secondsRema = Math.max(0, Math.floor(deltaSec - totalMinutes * 60));
       const minuteInNazhi = ((totalMinutes % 24) + 24) % 24;
 
-      // Vinadi within current nazhigai (1..60), 1 vinadi = 24 seconds
-      const secondsIntoNazhi = (minuteInNazhi * 60) + secondsRema; // 0..1439
+      // Vinadi (1..60)
+      const secondsIntoNazhi = (minuteInNazhi * 60) + secondsRema;
       const vinadiExact = secondsIntoNazhi / 24.0;
       let vinadiNo = Math.floor(vinadiExact) + 1;
       vinadiNo = clamp(vinadiNo, 1, 60);
 
-      // Display
+      // Tamil month & day number (solar, approximate)
+      const tamilInfo = getTamilMonth(target); // returns {name, startDate}
+      const tamilMonth = tamilInfo.name || "—";
+      let tamilMonthStart = tamilInfo.startDate;
+      let tamilDayNumber = "—";
+      if (tamilMonthStart) {
+        // handle if start date is in previous year (wrap) — already handled in getTamilMonth
+        const diffDays = Math.floor((target - tamilMonthStart) / (1000*60*60*24));
+        tamilDayNumber = diffDays + 1;
+        if (tamilDayNumber < 1) tamilDayNumber = 1;
+      }
+
+      // Weekday in Tamil
+      const weekdayNum = target.getDay(); // 0..6
+      const weekdayTamil = TAMIL_WEEKDAYS[weekdayNum] || "—";
+
+      // Tithi (approx) using Moon illumination
+      const tithi = approximateTithi(target);
+      const tithiText = `${tithi.tIndex}வது திதி (approx.) • ${tithi.paksha}`;
+
+      // Display main lines
       metaLine.textContent =
         `${selected.label}  •  Sunrise: ${formatTime(sunrise, tz, true)}  •  Sunset: ${formatTime(sunset, tz, true)}  •  Selected: ${formatTime(target, tz, true)}`;
 
       mainLine.textContent =
-        `${pagalIravu} ${tamilOrdinal(samamNo)} சாமம் • ` +
-        `${tamilOrdinal(dayNazhiNo)} நாழிகை • ` +
-        `${minuteInNazhi} நிமிடம் • ` +
-        `${tamilOrdinal(vinadiNo)} வினாடி`;
+        `${pagalIravu} ${tamilOrdinal(samamNo)} சாமம் • ${tamilOrdinal(dayNazhiNo)} நாழிகை • ${minuteInNazhi} நிமிடம் • ${tamilOrdinal(vinadiNo)} வினாடி`;
 
-      cycleLine.textContent =
-        `Day-cycle: ${dayNazhiNo}/60 நாழிகை • ${daySamamNo}/8 சாமம்`;
+      extraLine.textContent = `${tamilMonth} மாதம் • நாள்: ${tamilDayNumber} • நாள் பெயர்: ${weekdayTamil}`;
+      cycleLine.textContent = `Day-cycle: ${dayNazhiNo}/60 நாழிகை • ${daySamamNo}/8 சாமம்`;
+      tithiLine.textContent = `திதி (approx.): ${tithiText}`;
 
       // Calculation note (compact)
       calcNote.innerHTML = `
         <div><code>Δ = Selected − Sunrise = ${deltaMin.toFixed(4)} minutes</code></div>
         <div><code>nāzhigai_exact = Δ/24 = ${nazhigaiExact.toFixed(6)}</code> → <code>${dayNazhiNo}/60</code></div>
         <div><code>day_sāmam_exact = Δ/180 = ${daySamamExact.toFixed(6)}</code> → <code>${daySamamNo}/8</code></div>
-        <div style="margin-top:8px;"><code>${pagalIravu}</code> sāmam: <code>minutes_from_${isPagal ? "sunrise" : "sunset"}=${minFromBase.toFixed(2)}</code> → <code>${samamNo} (1..4)</code></div>
-        <div style="margin-top:8px;"><code>minute_in_nāzhigai = floor(Δ) mod 24 = ${minuteInNazhi}</code></div>
+        <div style="margin-top:6px;"><code>minute_in_nāzhigai = floor(Δ) mod 24 = ${minuteInNazhi}</code></div>
         <div><code>seconds_into_nāzhigai = minute*60 + sec = ${secondsIntoNazhi}</code></div>
         <div><code>vinādi_exact = seconds_into_nāzhigai/24 = ${vinadiExact.toFixed(6)}</code> → <code>${vinadiNo}/60</code></div>
+        <div style="margin-top:8px;"><code>தமிழ் மாதம் (approx)</code>: ${tamilMonth} (day ${tamilDayNumber}) • <code>Season</code>: ${TAMIL_SEASONS[tamilMonth] || "—"}</div>
+        <div style="margin-top:8px;"><code>திதி (approx)</code>: tithi_index = floor(illumination_phase*30)+1 = ${tithi.tIndex} • paksha ≈ ${tithi.paksha}</div>
+        <div style="margin-top:6px; color:var(--muted);">Note: For exact Panchangam (precise tithi, nakshatra, yoga) use a dedicated Panchangam library or authoritative source — this page shows a practical approximation only.</div>
       `;
     }
 
-    // --- City search (Nominatim) ---
-    let searchTimer = null;
+    // --- Search handlers ---
+    elSearch.addEventListener("input", () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => searchCity(elSearch.value), 250);
+    });
+    elSearch.addEventListener("focus", () => { if (elResults.innerHTML.trim()) elResults.classList.add("show"); });
+    document.addEventListener("click", (e) => { if (!elResults.contains(e.target) && e.target !== elSearch) hideResults(); });
 
-    function hideResults(){ elResults.classList.remove("show"); elResults.innerHTML = ""; }
+    elNow.addEventListener("click", () => { setTimeInputToNow(); compute(); });
+    elCalc.addEventListener("click", compute);
+    elTime.addEventListener("change", compute);
+    elWrap.addEventListener("change", compute);
+
+    // init
+    (function init(){
+      elSearch.value = "Madurai";
+      selected = { ...DEFAULT };
+      setTimeInputToNow();
+      compute();
+    })();
+
+    // --- searchCity / showResults -- copied below so functions exist in scope ---
+    async function searchCity(q){
+      const query = q.trim();
+      if (query.length < 2) { hideResults(); return; }
+      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=8&q=${encodeURIComponent(query)}`;
+      try{
+        const res = await fetch(url, { headers: { "Accept": "application/json" }});
+        const data = await res.json();
+        showResults(Array.isArray(data) ? data : []);
+      }catch(e){ hideResults(); }
+    }
 
     function showResults(items){
       elResults.innerHTML = "";
       if (!items.length) { hideResults(); return; }
-
       items.slice(0, 8).forEach(place => {
         const div = document.createElement("div");
         div.className = "item";
         const title = place.display_name.split(",").slice(0, 2).join(",").trim();
-        div.innerHTML = `
-          <div class="name">${escapeHtml(title)}</div>
-          <div class="desc">${escapeHtml(place.display_name)}</div>
-        `;
+        div.innerHTML = `<div class="name">${escapeHtml(title)}</div><div class="desc">${escapeHtml(place.display_name)}</div>`;
         div.addEventListener("click", () => {
           selected = {
             label: place.display_name,
@@ -487,63 +617,14 @@
           };
           elSearch.value = title;
           hideResults();
-          setTimeInputToNow(); // set to city's "now" (IST if India, else device tz)
+          setTimeInputToNow();
           compute();
         });
         elResults.appendChild(div);
       });
-
       elResults.classList.add("show");
     }
 
-    function escapeHtml(s){
-      return String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
-    }
-
-    async function searchCity(q){
-      const query = q.trim();
-      if (query.length < 2) { hideResults(); return; }
-
-      // Nominatim usage policy: include a valid User-Agent/Referer; in a static page we can at least set a polite param.
-      // This works for small personal projects. If you later host publicly at scale, consider your own proxy.
-      const url =
-        `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=8&q=${encodeURIComponent(query)}`;
-
-      try{
-        const res = await fetch(url, { headers: { "Accept": "application/json" }});
-        const data = await res.json();
-        showResults(Array.isArray(data) ? data : []);
-      }catch(e){
-        hideResults();
-      }
-    }
-
-    elSearch.addEventListener("input", () => {
-      clearTimeout(searchTimer);
-      searchTimer = setTimeout(() => searchCity(elSearch.value), 250);
-    });
-
-    elSearch.addEventListener("focus", () => {
-      if (elResults.innerHTML.trim()) elResults.classList.add("show");
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!elResults.contains(e.target) && e.target !== elSearch) hideResults();
-    });
-
-    // --- Buttons / init ---
-    elNow.addEventListener("click", () => { setTimeInputToNow(); compute(); });
-    elCalc.addEventListener("click", compute);
-    elTime.addEventListener("change", compute);
-    elWrap.addEventListener("change", compute);
-
-    // Init default = Madurai
-    (function init(){
-      elSearch.value = "Madurai";
-      selected = { ...DEFAULT };
-      setTimeInputToNow();
-      compute();
-    })();
   </script>
 </body>
 </html>

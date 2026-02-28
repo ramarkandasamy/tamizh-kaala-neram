@@ -222,6 +222,7 @@
           <div class="line"><div class="label">வருடம்</div><div class="value" id="outYear">—</div></div>
           <div class="line"><div class="label">பருவம்</div><div class="value" id="outSeason">—</div></div>
           <div class="line"><div class="label">மாதம்</div><div class="value" id="outMonth">—</div></div>
+          <div class="line"><div class="label">திதி</div><div class="value" id="outTithi">—</div></div>
           <div class="line"><div class="label">நாள்</div><div class="value" id="outDayNo">—</div></div>
           <div class="line"><div class="label">கிழமை</div><div class="value" id="outWeekday">—</div></div>
 
@@ -440,6 +441,7 @@
     const outYear      = document.getElementById("outYear");
     const outSeason    = document.getElementById("outSeason");
     const outMonth     = document.getElementById("outMonth");
+    const outTithi     = document.getElementById("outTithi");
     const outDayNo     = document.getElementById("outDayNo");
     const outWeekday   = document.getElementById("outWeekday");
     const outPagalIravu= document.getElementById("outPagalIravu");
@@ -583,6 +585,9 @@
       const sunrise = timesT.sunrise;
       const sunset  = timesT.sunset;
 
+      // Panchangam (for tithi shown in main list)
+      const p = panchangamFromDate(target);
+
       // Day/night
       const isPagal = (target >= sunrise && target < sunset);
       const pagalIravu = isPagal ? "பகல்" : "இரவு";
@@ -633,6 +638,7 @@
       outYear.textContent = tamilYear;
       outSeason.textContent = tamilSeason;
       outMonth.textContent = tamilMonth;
+      outTithi.textContent = `${p.tithiName} (${p.paksha})`;
       outDayNo.innerHTML = numHTML(tamilDay);
       outWeekday.textContent = weekdayTamil;
 
@@ -643,7 +649,6 @@
       outVinadi.innerHTML = `${numHTML(vinadiNo)}வது`;
 
       // Hidden info
-      const p = panchangamFromDate(target);
       infoPanch.innerHTML =
         `<b>பஞ்சாங்கம்</b><br>` +
         `திதி: ${p.tithiName} (${p.paksha})<br>` +

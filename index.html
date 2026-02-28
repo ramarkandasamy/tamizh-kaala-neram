@@ -19,8 +19,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Tiro+Tamil:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 
-  <!-- Luxon (timezone-aware date/time) -->
+  <!-- Luxon -->
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+  <!-- html2canvas (share screenshot) -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
     :root{
@@ -30,27 +32,76 @@
       --muted:rgba(255,255,255,.62);
       --shadow:0 18px 60px rgba(0,0,0,.45);
       --r:20px;
+      --card:rgba(255,255,255,.055); /* solid (no gradient) to avoid banding */
+      --card2:rgba(0,0,0,.22);
     }
+
     *{box-sizing:border-box;}
     html,body{height:100%;}
     body{
       margin:0;
-      background:
-        radial-gradient(1000px 600px at 12% 0%, rgba(120,180,255,.14), transparent 60%),
-        radial-gradient(900px 550px at 90% 25%, rgba(255,160,210,.10), transparent 55%),
-        var(--bg);
+      background: var(--bg);
       color:var(--text);
       font-family:"Tiro Tamil", serif;
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
+      overflow-x:hidden;
     }
-    .wrap{max-width:760px;margin:0 auto;padding:22px 14px 40px;}
+
+    /* FIX: background gradients are drawn in fixed pseudo-layers so they never "break" mid-page */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+      background:
+        radial-gradient(1100px 650px at 12% 0%, rgba(120,180,255,.16), transparent 60%),
+        radial-gradient(950px 600px at 92% 25%, rgba(255,160,210,.12), transparent 55%),
+        radial-gradient(1100px 700px at 50% 100%, rgba(160,255,210,.08), transparent 62%);
+      transform: translateZ(0);
+    }
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+      opacity:.035;
+      background-image:
+        repeating-linear-gradient(-25deg,
+          rgba(255,255,255,.22) 0px,
+          rgba(255,255,255,.22) 1px,
+          transparent 1px,
+          transparent 26px
+        );
+      transform: translateZ(0);
+    }
+
+    .wrap{
+      position:relative;
+      z-index:1;
+      max-width:760px;
+      margin:0 auto;
+      padding:22px 14px 40px;
+    }
+
     .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;}
     .brand{display:flex;align-items:center;gap:10px;min-width:0;}
-    .logo{width:38px;height:38px;border-radius:14px;background:linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.05));border:1px solid var(--stroke);box-shadow:0 10px 28px rgba(0,0,0,.35);}
+    .logo{
+      width:38px;height:38px;border-radius:14px;
+      background:linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.05));
+      border:1px solid var(--stroke);
+      box-shadow:0 10px 28px rgba(0,0,0,.35);
+      flex:0 0 auto;
+    }
     .title{min-width:0;line-height:1.15;}
     .title .h{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .title .sub{font-size:12px;color:var(--muted);font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .title .sub{
+      font-size:12px;color:var(--muted);
+      font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
 
     .actions{display:flex;gap:10px;align-items:center;}
     .iconbtn{
@@ -71,21 +122,24 @@
     .iconbtn:active{transform:scale(.98);}
 
     .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.05));
+      background: var(--card); /* solid */
       border:1px solid var(--stroke);
       border-radius:var(--r);
       box-shadow:var(--shadow);
       overflow:hidden;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
+
     .pad{padding:14px;}
     .grid2{display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:10px;}
-    .gridPick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;}
+    .gridPick{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:6px;}
 
     .input{
       width:100%;
       border-radius:16px;
       border:1px solid var(--stroke);
-      background:rgba(0,0,0,.30);
+      background: var(--card2);
       color:var(--text);
       padding:12px 14px;
       outline:none;
@@ -111,8 +165,12 @@
       font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
     }
 
-    /* CLEAN LIST: keep ALL rows identical pattern (fix “after nazhigai out of pattern”) */
-    .list{border-top:1px solid rgba(255,255,255,.07);padding:6px 16px 10px;}
+    /* CLEAN LIST (consistent pattern all rows) */
+    .list{
+      border-top:1px solid rgba(255,255,255,.07);
+      padding:6px 16px 10px;
+      background: rgba(0,0,0,.08); /* subtle uniform fill to prevent banding */
+    }
     .row{
       display:flex;justify-content:space-between;gap:14px;
       padding:11px 0;
@@ -181,7 +239,7 @@
     body.sharing details{display:none !important;}
     body.sharing .footer{display:none !important;}
 
-    /* Share hint line (ONLY additional date/time display; shown ONLY in share mode) */
+    /* Share-only stamp */
     .shareStamp{
       display:none;
       margin: 10px 0 0;
@@ -192,7 +250,10 @@
     }
     body.sharing .shareStamp{display:block;}
 
-    @media(max-width:520px){ .gridPick{grid-template-columns:1fr;} .v{font-size:19px;} .big{font-size:22px;} }
+    @media(max-width:520px){
+      .v{font-size:19px;}
+      .big{font-size:22px;}
+    }
   </style>
 </head>
 
@@ -207,7 +268,6 @@
           <div class="logo" aria-hidden="true"></div>
           <div class="title">
             <div class="h" id="cityTitle">தமிழ் கால நேரம்</div>
-            <!-- Only City timezone (no Device TZ, no "Using") -->
             <div class="sub">City TZ: <span id="cityTz">—</span></div>
           </div>
         </div>
@@ -219,7 +279,7 @@
         </div>
       </div>
 
-      <!-- Share-only stamp: includes selected date/time (requested) -->
+      <!-- Share-only stamp: includes selected date/time -->
       <div class="shareStamp" id="shareStamp">—</div>
 
       <div class="card">
@@ -231,7 +291,6 @@
 
           <div class="gridPick no-share">
             <input id="dtInput" class="input" type="datetime-local" />
-            <!-- removed mode switch to avoid confusion; always uses City TZ when available -->
           </div>
 
           <div class="helper no-share">
@@ -287,7 +346,7 @@
   <script>
     const { DateTime } = luxon;
 
-    // Compact errors only (no heavy logs)
+    // Compact errors only
     function compactErr(msg){
       const s = String(msg || "").slice(0, 180);
       return s.replace(/\s+/g, " ").trim();
@@ -385,7 +444,6 @@
     const btnRefresh = el("btnRefresh");
     const btnShare = el("btnShare");
 
-    // State: always compute in CITY TZ when available; otherwise device tz.
     const state = {
       deviceTz: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
       city: DEFAULT_CITY,
@@ -401,12 +459,9 @@
       errBox.textContent = `Error: ${title}${details ? " · " + compactErr(details) : ""}`;
     }
 
-    function effectiveTz(){
-      return state.cityTz || state.deviceTz;
-    }
+    function effectiveTz(){ return state.cityTz || state.deviceTz; }
 
     function setDtInputNow(){
-      // IMPORTANT: "Now" should always be now in EFFECTIVE TZ (so city change updates “now”)
       const now = DateTime.now().setZone(effectiveTz());
       dtInput.value = `${now.toFormat("yyyy-LL-dd")}T${now.toFormat("HH:mm")}`;
     }
@@ -417,7 +472,6 @@
       return DateTime.fromISO(dtInput.value, { zone: tz });
     }
 
-    // Tamil helpers
     function tamilMonthFromDate(localDate){
       const y = localDate.year;
       const zone = localDate.zoneName;
@@ -456,7 +510,7 @@
       return TAMIL_YEAR_NAMES[idx] || "—";
     }
 
-    // Fast panchang (approx)
+    // Panchang (fast approx)
     function julianDay(dtUtc){
       const y = dtUtc.year;
       const m = dtUtc.month;
@@ -521,7 +575,7 @@
       return j.results[0];
     }
 
-    async function loadSun3Days(lat, lon, tz, dPrev, d0, dNext){
+    async function loadSun3Days(lat, lon, tz, dPrev, dNext){
       state.sunMap.clear();
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&daily=sunrise,sunset&timezone=${encodeURIComponent(tz)}&start_date=${dPrev}&end_date=${dNext}`;
       const r = await fetch(url, { cache:"no-cache" });
@@ -556,7 +610,6 @@
       return (dtCity >= sr && dtCity < ss);
     }
 
-    // Tamil time
     function tamilTime(dtCity, lastSunrise){
       const diffMin = dtCity.diff(lastSunrise, "minutes").minutes;
       const totalMin = ((diffMin % 1440) + 1440) % 1440;
@@ -566,7 +619,7 @@
       return { nazhigai, minuteInNazhi, saamam, vinadi: dtCity.second };
     }
 
-    // Rahu/Yama/Gulika (sunrise->sunset split into 8 parts)
+    // Rahu/Yama/Gulika
     const RAHU_IDX = { 1:2, 2:7, 3:5, 4:6, 5:4, 6:3, 7:8 }; // Mon..Sun
     const YAMA_IDX = { 1:5, 2:4, 3:3, 4:2, 5:1, 6:7, 7:6 };
     const GULI_IDX = { 1:6, 2:5, 3:4, 4:3, 5:2, 6:1, 7:7 };
@@ -581,7 +634,6 @@
       const end   = sr.plus({ minutes: part * whichIdx });
       return { start, end };
     }
-
     function fmtTime(dt){ return dt ? dt.toFormat("hh:mm a") : "—"; }
 
     function disclaimerText(){
@@ -608,19 +660,20 @@
 
       const dtCity = getSelectedDateTime().setZone(tz);
       const dtUtc = dtCity.toUTC();
+
       const d0 = dtCity.toISODate();
       const dPrev = dtCity.minus({ days:1 }).toISODate();
       const dNext = dtCity.plus({ days:1 }).toISODate();
 
-      // Only show selected date/time once (no other date/time displays)
+      // Only one visible timestamp (Selected). Share stamp is share-mode only.
       const stamp = dtCity.toFormat("dd LLL yyyy, hh:mm a");
       selectedStamp.textContent = stamp;
       shareStamp.textContent = `${state.city || DEFAULT_CITY} · ${stamp}`;
 
-      // Load sun data (3 days)
+      // Load sun data (3 days) when we have lat/lon
       if(state.lat != null && state.lon != null){
         try{
-          await loadSun3Days(state.lat, state.lon, tz, dPrev, d0, dNext);
+          await loadSun3Days(state.lat, state.lon, tz, dPrev, dNext);
         }catch(e){
           showError("Sunrise/Sunset API failure", e.message);
         }
@@ -642,7 +695,6 @@
       outDayNum.textContent = dayNo;
       outWeekday.textContent = weekday;
 
-      // Day/night + nazhigai/saamam + windows
       const sun = getSun(d0);
       if(sun){
         outDayNight.textContent = isDay(dtCity, sun) ? "பகல்" : "இரவு";
@@ -705,9 +757,7 @@
         cityTitle.textContent = state.city;
         cityTzEl.textContent = state.cityTz || "—";
 
-        // IMPORTANT: city change should update NOW/date context if requested
         if(resetToNow) setDtInputNow();
-
         await recalcAndRender();
       }catch(e){
         showError("Geocoding API failure", e.message);
@@ -717,60 +767,56 @@
       }
     }
 
-    // Share: no html2canvas. Use native share (text) or copy text.
-    async function shareText(){
+    async function shareScreenshot(){
       clearError();
+      const shareArea = document.getElementById("shareArea");
 
-      const tz = effectiveTz();
-      const dtCity = getSelectedDateTime().setZone(tz);
-      const stamp = dtCity.toFormat("dd LLL yyyy, hh:mm a");
-
-      const text = [
-        "தமிழ் கால நேரம்",
-        `${state.city || DEFAULT_CITY}`,
-        `${stamp}`,
-        "",
-        `${outYear.textContent}`,
-        `${outSeason.textContent}`,
-        `${outMonth.textContent}`,
-        `நட்சத்திரம்: ${outNakshatra.textContent}`,
-        `பிறை: ${outPaksha.textContent}`,
-        `திதி: ${outTithi.textContent}`,
-        `தேதி: ${outDayNum.textContent}`,
-        `கிழமை: ${outWeekday.textContent}`,
-        `பகல்/இரவு: ${outDayNight.textContent}`,
-        `சாமம்: ${outSaamamNo.textContent}/8`,
-        `நாழிகை: ${outNaz.textContent}/60`,
-        `நிமிடம்: ${outMin.textContent}`,
-        `வினாடி: ${outVinadi.textContent}`,
-        `ராகு காலம்: ${outRahuStart.textContent} - ${outRahuEnd.textContent}`,
-        `யமகண்டம்: ${outYamaStart.textContent} - ${outYamaEnd.textContent}`,
-        `குளிகை: ${outGulikaStart.textContent} - ${outGulikaEnd.textContent}`
-      ].join("\n");
+      document.body.classList.add("sharing");
+      await new Promise(r => setTimeout(r, 80));
 
       try{
-        if(navigator.share){
-          await navigator.share({ title: APP_NAME, text });
-        }else{
-          await navigator.clipboard.writeText(text);
-          showError("Copied", "Share not supported. Text copied to clipboard.");
+        const canvas = await html2canvas(shareArea, {
+          backgroundColor: "#070a10",
+          scale: Math.min(2, window.devicePixelRatio || 1),
+          useCORS: true
+        });
+
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 0.95));
+        if(!blob) throw new Error("Screenshot failed");
+
+        const tz = effectiveTz();
+        const dtCity = getSelectedDateTime().setZone(tz);
+        const safeName = `${APP_NAME}-${(state.city||DEFAULT_CITY)}-${dtCity.toFormat("yyyyLLdd-HHmm")}`
+          .replace(/[^\w\u0B80-\u0BFF\-]+/g, "_");
+
+        const file = new File([blob], `${safeName}.png`, { type: "image/png" });
+
+        if(navigator.canShare && navigator.canShare({ files: [file] })){
+          await navigator.share({ title: APP_NAME, text: APP_NAME, files: [file] });
+        } else {
+          // fallback: download
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = `${safeName}.png`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(a.href);
         }
       }catch(e){
         showError("Share failed", e.message);
+      }finally{
+        document.body.classList.remove("sharing");
       }
     }
 
-    // Events
+    // UI hooks
     cityGo.addEventListener("click", () => setCity(cityInput.value, { resetToNow:true }));
     cityInput.addEventListener("keydown", (e) => { if(e.key === "Enter") setCity(cityInput.value, { resetToNow:true }); });
 
-    btnNow.addEventListener("click", async () => {
-      setDtInputNow();
-      await recalcAndRender();
-    });
-
+    btnNow.addEventListener("click", async () => { setDtInputNow(); await recalcAndRender(); });
     btnRefresh.addEventListener("click", () => recalcAndRender().catch(e => showError("Recalc failed", e.message)));
-    btnShare.addEventListener("click", () => shareText());
+    btnShare.addEventListener("click", () => shareScreenshot());
 
     dtInput.addEventListener("change", () => recalcAndRender().catch(e => showError("Recalc failed", e.message)));
 
@@ -780,14 +826,13 @@
       cityInput.value = DEFAULT_CITY;
       infoBox.textContent = disclaimerText();
 
-      // First: set default city
       await setCity(DEFAULT_CITY, { resetToNow:true });
 
-      // If network blocked, still show something
+      // If API blocked: still render with device tz
       if(state.lat == null || state.lon == null){
         state.city = DEFAULT_CITY;
         cityTitle.textContent = DEFAULT_CITY;
-        state.cityTz = state.deviceTz; // fallback
+        state.cityTz = state.deviceTz;
         cityTzEl.textContent = state.cityTz;
         setDtInputNow();
         await recalcAndRender();

@@ -1,0 +1,14 @@
+{
+  "name": "தமிழ் நேரம்",
+  "short_name": "தமிழ் நேரம்",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme_color": "#0f1117",
+  "description": "தமிழ் நேர கணக்கு: வருடம், பருவம், மாதம், திதி, நாள், கிழமை, பகல்/இரவு, சாமம், நாழிகை, நிமிடம், வினாடி.",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

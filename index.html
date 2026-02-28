@@ -5,365 +5,207 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#0b0f14" />
   <meta name="color-scheme" content="dark light" />
-
   <title>தமிழ் கால நேரம்</title>
 
-  <!-- Author info ONLY in HTML (not displayed) -->
+  <!-- author info ONLY in HTML (not displayed) -->
+  <meta name="author" content="Ramar Kandasamy">
+  <meta name="email" content="ram.kabil@gmailcom">
   <meta name="application-name" content="தமிழ் கால நேரம்">
   <meta name="apple-mobile-web-app-title" content="தமிழ் கால நேரம்">
-  <meta name="author" content="Ramar Kandasamy">
-  <meta name="creator" content="Ramar Kandasamy">
-  <meta name="publisher" content="Ramar Kandasamy">
-  <meta name="email" content="ram.kabil@gmailcom">
   <meta name="description" content="தமிழ் கால நேரம் — நாழிகை / சாமம் / பஞ்சாங்கம்.">
-  <meta name="keywords" content="தமிழ் கால நேரம், Tamil time, naazhigai, saamam, panchangam">
-  <meta name="robots" content="index,follow">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Tiro+Tamil:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 
-  <!-- Luxon -->
+  <!-- Luxon (timezone) -->
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
-
-  <!-- html2canvas -->
+  <!-- html2canvas (share screenshot) -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
     :root{
-      --bg: #070a10;
-      --stroke: rgba(255,255,255,.10);
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.68);
-      --muted2: rgba(255,255,255,.55);
-      --shadow: 0 18px 60px rgba(0,0,0,.45);
-      --radius: 22px;
+      --bg:#070a10;
+      --card:rgba(255,255,255,.06);
+      --stroke:rgba(255,255,255,.10);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.62);
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --r:20px;
     }
-
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
     body{
       margin:0;
       background:
-        radial-gradient(1200px 700px at 10% 0%, rgba(120,180,255,.16), transparent 60%),
-        radial-gradient(900px 550px at 90% 20%, rgba(255,160,210,.12), transparent 55%),
-        radial-gradient(900px 600px at 50% 100%, rgba(180,255,210,.08), transparent 60%),
+        radial-gradient(1000px 600px at 12% 0%, rgba(120,180,255,.14), transparent 60%),
+        radial-gradient(900px 550px at 90% 25%, rgba(255,160,210,.10), transparent 55%),
         var(--bg);
       color:var(--text);
-      font-family: "Tiro Tamil", serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      font-family:"Tiro Tamil", serif;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
     }
+    .wrap{max-width:760px;margin:0 auto;padding:22px 14px 40px;position:relative;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;}
+    .brand{display:flex;align-items:center;gap:10px;min-width:0;}
+    .logo{width:38px;height:38px;border-radius:14px;background:linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.05));border:1px solid var(--stroke);box-shadow:0 10px 28px rgba(0,0,0,.35);}
+    .title{min-width:0;line-height:1.15;}
+    .title .h{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .title .sub{font-size:12px;color:var(--muted);font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-    /* subtle pattern watermark (no text) */
-    body::before{
-      content:"";
-      position: fixed;
-      inset: 0;
-      pointer-events:none;
-      z-index: 0;
-      opacity: .04;
-      background-image:
-        repeating-linear-gradient( -25deg,
-          rgba(255,255,255,.22) 0px,
-          rgba(255,255,255,.22) 1px,
-          transparent 1px,
-          transparent 24px
-        );
-    }
-
-    .wrap{
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 26px 16px 44px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .topbar{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      justify-content:space-between;
-      margin-bottom:16px;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-width:0;
-    }
-
-    .logo{
-      width:40px; height:40px;
-      border-radius:14px;
-      background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
-      border:1px solid var(--stroke);
-      box-shadow: 0 10px 28px rgba(0,0,0,.35);
-      position:relative;
-      overflow:hidden;
-      flex: 0 0 auto;
-    }
-    .logo:before{
-      content:"";
-      position:absolute; inset:-40%;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 55%);
-      transform: rotate(18deg);
-    }
-
-    .title{
-      display:flex; flex-direction:column; line-height:1.15;
-      min-width:0;
-    }
-    .title .h{
-      font-size: 18px;
-      font-weight: 400;
-      letter-spacing:.2px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .title .sub{
-      font-size: 13px;
-      color: var(--muted2);
-      font-family: "Roboto", system-ui, -apple-system, Segoe UI, sans-serif;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .actions{ display:flex; align-items:center; gap:10px; }
-
+    .actions{display:flex;gap:10px;align-items:center;}
     .iconbtn{
       border:1px solid var(--stroke);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 10px 12px;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
+      background:rgba(255,255,255,.07);
+      color:var(--text);
+      border-radius:14px;
+      padding:10px 12px;
+      display:inline-flex;align-items:center;gap:8px;
       cursor:pointer;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-      transition: transform .12s ease, background .12s ease;
+      box-shadow:0 10px 30px rgba(0,0,0,.22);
+      transition:transform .12s ease, background .12s ease;
       user-select:none;
-      font-family: "Roboto", system-ui, -apple-system, Segoe UI, sans-serif;
+      font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
       white-space:nowrap;
     }
-    .iconbtn:active{ transform: scale(.98); }
-    .iconbtn:hover{ background: rgba(255,255,255,.085); }
+    .iconbtn:hover{background:rgba(255,255,255,.10);}
+    .iconbtn:active{transform:scale(.98);}
 
-    .maincard{
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
-      border: 1px solid var(--stroke);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.05));
+      border:1px solid var(--stroke);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
       overflow:hidden;
     }
-
-    .cardpad{ padding: 16px; }
-
-    .searchRow{
-      display:grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
+    .pad{padding:14px;}
+    .grid2{display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:10px;}
+    .gridPick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;}
 
     .input{
       width:100%;
-      border-radius: 16px;
-      border: 1px solid var(--stroke);
-      background: rgba(0,0,0,.30);
-      color: var(--text);
-      padding: 12px 14px;
+      border-radius:16px;
+      border:1px solid var(--stroke);
+      background:rgba(0,0,0,.30);
+      color:var(--text);
+      padding:12px 14px;
       outline:none;
-      font-size: 16px;
-      font-family: "Roboto", system-ui, -apple-system, Segoe UI, sans-serif;
+      font-size:16px;
+      font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
     }
-    .input::placeholder{ color: rgba(255,255,255,.45); }
-
     .btn{
-      border-radius: 16px;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,.10);
-      color: var(--text);
-      padding: 12px 14px;
-      font-size: 15px;
-      cursor:pointer;
-      transition: transform .12s ease, background .12s ease;
-      font-family: "Roboto", system-ui, -apple-system, Segoe UI, sans-serif;
+      border-radius:16px;border:1px solid var(--stroke);
+      background:rgba(255,255,255,.10);
+      color:var(--text);
+      padding:12px 14px;
+      font-size:15px;cursor:pointer;
+      font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
       white-space:nowrap;
     }
-    .btn:hover{ background: rgba(255,255,255,.14); }
-    .btn:active{ transform: scale(.98); }
-
-    .pickerRow{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
+    .btn:hover{background:rgba(255,255,255,.13);}
+    .btn:active{transform:scale(.98);}
 
     .helper{
-      font-size: 12px;
-      color: var(--muted2);
-      margin: 8px 2px 2px;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-      font-family: "Roboto", system-ui, -apple-system, Segoe UI, sans-serif;
+      display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+      font-size:12px;color:var(--muted);
+      margin:6px 2px 2px;
+      font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
     }
 
-    .lines{
-      padding: 12px 16px 18px;
-      border-top: 1px solid rgba(255,255,255,.07);
-    }
-
-    .line{
-      display:flex;
+    /* CLEAN LIST (fix “last 4 fields out of pattern”) */
+    .list{border-top:1px solid rgba(255,255,255,.07);padding:6px 16px 10px;}
+    .row{
+      display:flex;justify-content:space-between;gap:14px;
+      padding:11px 0;
+      border-bottom:1px solid rgba(255,255,255,.06);
       align-items:baseline;
-      justify-content:space-between;
-      gap: 14px;
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(255,255,255,.06);
     }
-    .line:last-child{ border-bottom:0; }
+    .row:last-child{border-bottom:0;}
+    .k{color:var(--muted);font-size:16px;flex:0 0 auto;}
+    .v{text-align:right;font-size:20px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .big{font-size:24px;}
+    .num{font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;font-variant-numeric:tabular-nums;}
 
-    .k{
-      color: var(--muted);
-      font-size: 16px;
-      letter-spacing:.1px;
-      flex: 0 0 auto;
+    /* duration rows (Rahu/Yama/Gulika) */
+    .timeRange{
+      display:flex;justify-content:flex-end;gap:10px;align-items:baseline;
+      font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
     }
+    .timeRange span{white-space:nowrap;}
+    .dash{opacity:.55;}
 
-    .v{
-      text-align:right;
-      font-size: 20px;
-      font-weight: 400;
-      letter-spacing:.2px;
-      flex: 1 1 auto;
-      min-width: 0;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-
-    .num{
-      font-family: "Roboto", system-ui, -apple-system, Segoe UI, sans-serif;
-      font-variant-numeric: tabular-nums;
+    .err{
+      display:none;
+      margin-top:8px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,120,120,.22);
+      background:rgba(255,80,80,.08);
+      color:rgba(255,210,210,.92);
+      font-size:13px;
+      font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
+      white-space:pre-wrap;
     }
 
-    .bigOnly{
-      font-size: 24px;
-      letter-spacing:.2px;
-    }
-
-    .chips{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top: 10px;
-    }
-    .chip{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.06);
-      padding: 8px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      color: var(--muted);
-      font-family: "Roboto", system-ui, -apple-system, Segoe UI, sans-serif;
-    }
-
-    .info{ border-top: 1px solid rgba(255,255,255,.07); }
-
-    details{ padding: 10px 16px 16px; }
+    details{border-top:1px solid rgba(255,255,255,.07);padding:10px 16px 14px;}
     summary{
-      list-style:none;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      color: var(--muted);
-      font-family: "Roboto", system-ui, -apple-system, Segoe UI, sans-serif;
-      padding: 10px 0;
-      user-select:none;
+      list-style:none;cursor:pointer;
+      display:flex;justify-content:space-between;gap:10px;
+      color:var(--muted);
+      font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
+      user-select:none;padding:8px 0;
     }
-    summary::-webkit-details-marker{ display:none; }
-
+    summary::-webkit-details-marker{display:none;}
     .infobox{
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.28);
-      border-radius: 16px;
-      padding: 12px;
-      color: rgba(255,255,255,.80);
-      font-size: 13px;
-      line-height: 1.55;
-      font-family: "Roboto", system-ui, -apple-system, Segoe UI, sans-serif;
-      white-space: pre-wrap;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.26);
+      border-radius:16px;
+      padding:12px;
+      color:rgba(255,255,255,.80);
+      font-size:13px;line-height:1.55;
+      font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
+      white-space:pre-wrap;
     }
 
     .footer{
-      margin-top: 14px;
-      display:flex;
-      gap:10px;
-      justify-content:space-between;
-      flex-wrap:wrap;
-      align-items:center;
-      color: var(--muted2);
-      font-size: 12px;
-      font-family: "Roboto", system-ui, -apple-system, Segoe UI, sans-serif;
+      margin-top:14px;
+      display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+      color:var(--muted);
+      font-size:12px;
+      font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
     }
-
     .donate{
       text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.08);
-      color: var(--text);
-      transition: transform .12s ease, background .12s ease;
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 12px;border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.08);
+      color:var(--text);
     }
-    .donate:hover{ background: rgba(255,255,255,.12); }
-    .donate:active{ transform: scale(.98); }
 
-    .err{
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,120,120,.22);
-      background: rgba(255,80,80,.08);
-      color: rgba(255,210,210,.92);
-      font-size: 13px;
-      font-family: "Roboto", system-ui, -apple-system, Segoe UI, sans-serif;
+    /* Share mode: hide controls/details/footer only */
+    body.sharing .no-share{display:none !important;}
+    body.sharing details{display:none !important;}
+    body.sharing .footer{display:none !important;}
+
+    /* Share header line */
+    .shareStamp{
       display:none;
-      white-space: pre-wrap;
+      margin: 10px 0 0;
+      padding: 10px 16px 0;
+      color: rgba(255,255,255,.86);
+      font-size: 14px;
+      font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
     }
-
-    /* Share mode: ONLY hide. Do NOT set display for normal mode. */
-    body.sharing .no-share{ display:none !important; }
-    body.sharing details{ display:none !important; }
-    body.sharing .footer{ display:none !important; }
-
-    #shareArea{ border-radius: 22px; }
-
-    @media (max-width:520px){
-      .pickerRow{ grid-template-columns: 1fr; }
-      .v{ font-size: 19px; }
-      .bigOnly{ font-size: 22px; }
-    }
+    body.sharing .shareStamp{display:block;}
+    @media(max-width:520px){ .gridPick{grid-template-columns:1fr;} .v{font-size:19px;} .big{font-size:22px;} }
   </style>
 </head>
 
 <body data-app="தமிழ் கால நேரம்">
-  <!-- AUTHOR INFO STORED IN HTML ONLY (not shown): Ramar Kandasamy · ram.kabil@gmailcom -->
+  <!-- AUTHOR STORED IN HTML ONLY (not shown): Ramar Kandasamy · ram.kabil@gmailcom -->
   <div style="display:none">தமிழ் கால நேரம் — Author: Ramar Kandasamy — Email: ram.kabil@gmailcom</div>
 
   <div class="wrap">
@@ -380,26 +222,23 @@
         </div>
 
         <div class="actions no-share">
-          <button class="iconbtn" id="btnShare" title="Share">
-            <span aria-hidden="true">📤</span><span class="num">Share</span>
-          </button>
-          <button class="iconbtn" id="btnNow" title="Now">
-            <span aria-hidden="true">⏱️</span><span class="num">Now</span>
-          </button>
-          <button class="iconbtn" id="btnRefresh" title="Refresh">
-            <span aria-hidden="true">↻</span><span class="num">Refresh</span>
-          </button>
+          <button class="iconbtn" id="btnShare" title="Share"><span aria-hidden="true">📤</span><span class="num">Share</span></button>
+          <button class="iconbtn" id="btnNow" title="Now"><span aria-hidden="true">⏱️</span><span class="num">Now</span></button>
+          <button class="iconbtn" id="btnRefresh" title="Refresh"><span aria-hidden="true">↻</span><span class="num">Refresh</span></button>
         </div>
       </div>
 
-      <div class="maincard">
-        <div class="cardpad">
-          <div class="searchRow no-share">
+      <!-- This line shows ONLY in share output (date/time of the displayed values) -->
+      <div class="shareStamp" id="shareStamp">—</div>
+
+      <div class="card">
+        <div class="pad">
+          <div class="grid2 no-share">
             <input id="cityInput" class="input" placeholder="City (e.g., Madurai, Chennai, Singapore)" />
             <button id="cityGo" class="btn">Search</button>
           </div>
 
-          <div class="pickerRow no-share">
+          <div class="gridPick no-share">
             <input id="dtInput" class="input" type="datetime-local" />
             <select id="modeInput" class="input" style="cursor:pointer">
               <option value="device">Device Timezone (default)</option>
@@ -408,58 +247,57 @@
           </div>
 
           <div class="helper">
-            <div>Selected converts using: <span class="num" id="usingTz">—</span></div>
-            <div>Sunrise/Sunset for: <span class="num" id="sunForDate">—</span></div>
+            <div>Using: <span class="num" id="usingTz">—</span></div>
+            <div>Date: <span class="num" id="sunForDate">—</span></div>
           </div>
 
           <div class="err" id="errBox"></div>
+        </div>
 
-          <div class="lines">
-            <div class="line"><div class="k">ஆண்டு</div><div class="v" id="outYear">—</div></div>
-            <div class="line"><div class="k">பருவம்</div><div class="v" id="outSeason">—</div></div>
-            <div class="line"><div class="k">மாதம்</div><div class="v" id="outMonth">—</div></div>
+        <div class="list">
+          <div class="row"><div class="k">ஆண்டு</div><div class="v" id="outYear">—</div></div>
+          <div class="row"><div class="k">பருவம்</div><div class="v" id="outSeason">—</div></div>
+          <div class="row"><div class="k">மாதம்</div><div class="v" id="outMonth">—</div></div>
+          <div class="row"><div class="k">நட்சத்திரம்</div><div class="v" id="outNakshatra">—</div></div>
+          <div class="row"><div class="k">வளர்பிறை / தேய்பிறை</div><div class="v" id="outPaksha">—</div></div>
+          <div class="row"><div class="k">திதி</div><div class="v" id="outTithi">—</div></div>
+          <div class="row"><div class="k">தேதி</div><div class="v"><span class="num" id="outDayNum">—</span></div></div>
+          <div class="row"><div class="k">கிழமை</div><div class="v" id="outWeekday">—</div></div>
 
-            <div class="line"><div class="k">நட்சத்திரம்</div><div class="v" id="outNakshatra">—</div></div>
+          <div class="row"><div class="k">பகல் / இரவு</div><div class="v big" id="outDayNight">—</div></div>
+          <div class="row"><div class="k">சாமம்</div><div class="v"><span class="num" id="outSaamamNo">—</span> / <span class="num">8</span></div></div>
+          <div class="row"><div class="k">நாழிகை</div><div class="v"><span class="num" id="outNaz">—</span> / <span class="num">60</span></div></div>
+          <div class="row"><div class="k">நிமிடம்</div><div class="v"><span class="num" id="outMin">—</span></div></div>
+          <div class="row"><div class="k">வினாடி</div><div class="v"><span class="num" id="outVinadi">—</span></div></div>
 
-            <!-- NEW -->
-            <div class="line"><div class="k">வளர்பிறை / தேய்பிறை</div><div class="v" id="outPaksha">—</div></div>
-
-            <div class="line"><div class="k">திதி</div><div class="v" id="outTithi">—</div></div>
-
-            <div class="line"><div class="k">தேதி</div><div class="v"><span class="num" id="outDayNum">—</span></div></div>
-            <div class="line"><div class="k">கிழமை</div><div class="v" id="outWeekday">—</div></div>
-            <div class="line"><div class="k">பகல் / இரவு</div><div class="v bigOnly" id="outDayNight">—</div></div>
-
-            <div class="line"><div class="k">சாமம்</div><div class="v"><span class="num" id="outSaamamNo">—</span> / <span class="num">8</span></div></div>
-            <div class="line"><div class="k">நாழிகை</div><div class="v"><span class="num" id="outNaz">—</span> / <span class="num">60</span></div></div>
-            <div class="line"><div class="k">நிமிடம்</div><div class="v"><span class="num" id="outMin">—</span></div></div>
-            <div class="line"><div class="k">வினாடி</div><div class="v"><span class="num" id="outVinadi">—</span></div></div>
-
-            <div class="chips">
-              <div class="chip">Day-cycle: <span class="num" id="outNazCycle">—</span> / 60 நாழிகை</div>
-              <div class="chip">Day-cycle: <span class="num" id="outSaamamCycle">—</span> / 8 சாமம்</div>
-            </div>
+          <!-- NEW: Rahu/Yama/Gulika (start–end) -->
+          <div class="row">
+            <div class="k">ராகு காலம்</div>
+            <div class="v"><div class="timeRange"><span class="num" id="outRahuStart">—</span><span class="dash">—</span><span class="num" id="outRahuEnd">—</span></div></div>
           </div>
+          <div class="row">
+            <div class="k">யமகண்டம்</div>
+            <div class="v"><div class="timeRange"><span class="num" id="outYamaStart">—</span><span class="dash">—</span><span class="num" id="outYamaEnd">—</span></div></div>
+          </div>
+          <div class="row">
+            <div class="k">குளிகை</div>
+            <div class="v"><div class="timeRange"><span class="num" id="outGulikaStart">—</span><span class="dash">—</span><span class="num" id="outGulikaEnd">—</span></div></div>
+          </div>
+
+          <!-- keep day-cycle but in same clean pattern -->
+          <div class="row"><div class="k">Day-cycle (நாழிகை)</div><div class="v"><span class="num" id="outNazCycle">—</span> / <span class="num">60</span></div></div>
+          <div class="row"><div class="k">Day-cycle (சாமம்)</div><div class="v"><span class="num" id="outSaamamCycle">—</span> / <span class="num">8</span></div></div>
         </div>
 
-        <div class="info">
-          <details id="infoDetails" class="no-share">
-            <summary>
-              <span>Info · Disclaimer · Dependencies</span>
-              <span aria-hidden="true">▾</span>
-            </summary>
-            <div class="infobox" id="infoBox">—</div>
-          </details>
-        </div>
+        <details class="no-share">
+          <summary><span>Info · Disclaimer · Dependencies</span><span aria-hidden="true">▾</span></summary>
+          <div class="infobox" id="infoBox">—</div>
+        </details>
       </div>
     </div>
 
     <div class="footer no-share">
-      <div>
-        <a class="donate" href="upi://pay?pa=8903448384@upi&pn=Ramar%20Kandasamy&cu=INR">
-          <span aria-hidden="true">❤️</span> Donate <span class="num">UPI</span>
-        </a>
-      </div>
+      <a class="donate" href="upi://pay?pa=8903448384@upi&pn=Ramar%20Kandasamy&cu=INR"><span aria-hidden="true">❤️</span> Donate <span class="num">UPI</span></a>
       <div class="num" id="footNote">தமிழ் கால நேரம்</div>
     </div>
   </div>
@@ -467,17 +305,24 @@
   <script>
     const { DateTime } = luxon;
 
-    // Show any JS errors in the red box (so it never "silently breaks")
+    // Compact + fast: no heavy logs, no verbose error stack.
+    function compactErr(msg){
+      const s = String(msg || "").slice(0, 220);
+      return s.replace(/\s+/g, " ").trim();
+    }
+
+    // Show JS errors (compact)
     window.addEventListener("error", (e) => {
       const box = document.getElementById("errBox");
       if(!box) return;
       box.style.display = "block";
-      box.textContent = `Error: ${e.message}\nSource: ${e.filename || ""}:${e.lineno || ""}`;
+      box.textContent = `Error: ${compactErr(e.message)}`;
     });
 
     const APP_NAME = "தமிழ் கால நேரம்";
     const DEFAULT_CITY = "Madurai";
 
+    // Simple solar month boundary table
     const TAMIL_MONTHS = [
       { name: "சித்திரை",   start: { m: 4,  d: 14 }, season: "இளவேனில்" },
       { name: "வைகாசி",    start: { m: 5,  d: 15 }, season: "இளவேனில்" },
@@ -493,6 +338,7 @@
       { name: "பங்குனி",   start: { m: 3,  d: 14 }, season: "பின்பனி" }
     ];
 
+    // 60-year cycle (anchor Apr 14, 1987)
     const TAMIL_YEAR_NAMES = [
       "பிரபவ","விபவ","சுக்ல","பிரமோதூத","பிரஜோற்பத்தி","ஆங்கீரச",
       "ஸ்ரீமுக","பாவ","யுவ","தாது","ஈஸ்வர","வெகுதான்ய",
@@ -527,6 +373,7 @@
     const cityTzEl = el("cityTz");
     const usingTzEl = el("usingTz");
     const sunForDateEl = el("sunForDate");
+    const shareStamp = el("shareStamp");
 
     const cityInput = el("cityInput");
     const cityGo = el("cityGo");
@@ -551,33 +398,35 @@
     const outVinadi = el("outVinadi");
     const outNazCycle = el("outNazCycle");
     const outSaamamCycle = el("outSaamamCycle");
+
+    const outRahuStart = el("outRahuStart");
+    const outRahuEnd = el("outRahuEnd");
+    const outYamaStart = el("outYamaStart");
+    const outYamaEnd = el("outYamaEnd");
+    const outGulikaStart = el("outGulikaStart");
+    const outGulikaEnd = el("outGulikaEnd");
+
     const footNote = el("footNote");
 
     const btnNow = el("btnNow");
     const btnRefresh = el("btnRefresh");
     const btnShare = el("btnShare");
 
+    // Minimal state
     const state = {
       deviceTz: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
       city: DEFAULT_CITY,
       cityTz: null,
       lat: null,
       lon: null,
-      sunMap: new Map(),
+      sunMap: new Map(), // cache only 3 days around selected date
       lastApi: { geocoding:"—", sunrise:"—" }
     };
 
-    function clearError(){
-      errBox.style.display = "none";
-      errBox.textContent = "";
-    }
+    function clearError(){ errBox.style.display="none"; errBox.textContent=""; }
     function showError(title, details){
-      const lines = [];
-      lines.push(`Error: ${title}`);
-      if(details) lines.push(`Details: ${details}`);
-      lines.push(`APIs: Geocoding=${state.lastApi.geocoding} · Sunrise/Sunset=${state.lastApi.sunrise}`);
-      errBox.style.display = "block";
-      errBox.textContent = lines.join("\n");
+      errBox.style.display="block";
+      errBox.textContent = `Error: ${title}${details ? " · " + compactErr(details) : ""}`;
     }
 
     function setDtInputNow(){
@@ -591,6 +440,7 @@
       return DateTime.fromISO(dtInput.value, { zone: tz });
     }
 
+    // ---- Tamil calendar helpers ----
     function tamilMonthFromDate(localDate){
       const y = localDate.year;
       const zone = localDate.zoneName;
@@ -631,7 +481,7 @@
       return TAMIL_YEAR_NAMES[idx] || "—";
     }
 
-    // --- Astronomy (approx) ---
+    // ---- Astronomy (approx + fast) ----
     function julianDay(dtUtc){
       const y = dtUtc.year;
       const m = dtUtc.month;
@@ -657,58 +507,56 @@
       const T = (jd - 2451545.0) / 36525.0;
       const L0 = fixAngle(218.3164477 + 481267.88123421*T - 0.0015786*T*T + T*T*T/538841 - T*T*T*T/65194000);
       const D  = fixAngle(297.8501921 + 445267.1114034*T - 0.0018819*T*T + T*T*T/545868 - T*T*T*T/113065000);
-      const M  = fixAngle(357.5291092 + 35999.0502909*T - 0.0001536*T*T + T*T*T/24490000);
-      const Mp = fixAngle(134.9633964 + 477198.8675055*T + 0.0087414*T*T + T*T*T/69699 - T*T*T*T/14712000);
-      const F  = fixAngle(93.2720950  + 483202.0175233*T - 0.0036539*T*T - T*T*T/3526000 + T*T*T*T/863310000);
+      const M  = fixAngle(357.5291092 + 35999.0502909*T - 0.0001536*T*T);
+      const Mp = fixAngle(134.9633964 + 477198.8675055*T + 0.0087414*T*T);
       const Dr  = D  * Math.PI/180;
       const Mr  = M  * Math.PI/180;
       const Mpr = Mp * Math.PI/180;
-      const Fr  = F  * Math.PI/180;
 
+      // short series (fast)
       let lon = L0
         + 6.289 * Math.sin(Mpr)
         + 1.274 * Math.sin(2*Dr - Mpr)
         + 0.658 * Math.sin(2*Dr)
-        + 0.214 * Math.sin(2*Mpr)
         - 0.186 * Math.sin(Mr)
-        - 0.114 * Math.sin(2*Fr)
-        + 0.059 * Math.sin(2*Dr - 2*Mpr)
-        + 0.057 * Math.sin(2*Dr - Mr - Mpr)
-        + 0.053 * Math.sin(2*Dr + Mpr)
-        + 0.046 * Math.sin(2*Dr - Mr)
-        + 0.041 * Math.sin(Mr + Mpr)
-        - 0.035 * Math.sin(Dr)
-        - 0.031 * Math.sin(Mr - Mpr)
-        - 0.015 * Math.sin(2*Dr - 2*Fr);
+        + 0.214 * Math.sin(2*Mpr);
 
       return fixAngle(lon);
     }
-    function tithiFromLongitudes(moonLon, sunLon){
+    function panchang(dtUtc){
+      const jd = julianDay(dtUtc);
+      const sunLon = sunEclLon(jd);
+      const moonLon = moonEclLon(jd);
+
       const diff = fixAngle(moonLon - sunLon);
       const t = Math.floor(diff/12) + 1; // 1..30
       const paksha = (t <= 15) ? "வளர்பிறை" : "தேய்பிறை";
-      return { name: TITHI_NAMES[t-1] || "—", paksha };
-    }
-    function nakshatraFromMoonLon(moonLon){
+      const tName = TITHI_NAMES[t-1] || "—";
+
       const n = Math.floor(fixAngle(moonLon) / (360/27)) + 1;
-      return NAKSHATRA_NAMES[n-1] || "—";
+      const nName = NAKSHATRA_NAMES[n-1] || "—";
+
+      return { paksha, tName, nName };
     }
 
-    // --- APIs ---
+    // ---- APIs ----
     async function geocodeCity(name){
       const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=5&language=en&format=json`;
-      const r = await fetch(url);
-      if(!r.ok) throw new Error(`Geocoding HTTP ${r.status}`);
+      const r = await fetch(url, { cache: "no-cache" });
+      if(!r.ok) throw new Error(`Geocoding ${r.status}`);
       const j = await r.json();
       if(!j.results || !j.results.length) throw new Error("City not found");
       return j.results[0];
     }
-    async function loadSunriseSunsetRange(lat, lon, tz, startISO, endISO){
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&daily=sunrise,sunset&timezone=${encodeURIComponent(tz)}&start_date=${startISO}&end_date=${endISO}`;
-      const r = await fetch(url);
-      if(!r.ok) throw new Error(`Sunrise/Sunset HTTP ${r.status}`);
+
+    async function loadSun3Days(lat, lon, tz, dPrev, d0, dNext){
+      // Keep cache tiny: clear and load only these 3 days
+      state.sunMap.clear();
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&daily=sunrise,sunset&timezone=${encodeURIComponent(tz)}&start_date=${dPrev}&end_date=${dNext}`;
+      const r = await fetch(url, { cache: "no-cache" });
+      if(!r.ok) throw new Error(`Sun ${r.status}`);
       const j = await r.json();
-      if(!j.daily || !j.daily.time) throw new Error("Sunrise/Sunset data missing");
+      if(!j.daily || !j.daily.time) throw new Error("Sun data missing");
       for(let i=0;i<j.daily.time.length;i++){
         const d = j.daily.time[i];
         const sunrise = j.daily.sunrise?.[i];
@@ -716,26 +564,29 @@
         if(sunrise && sunset) state.sunMap.set(d, { sunrise, sunset });
       }
     }
-    function getSunForDate(dateISO){ return state.sunMap.get(dateISO) || null; }
+
+    function getSun(dateISO){ return state.sunMap.get(dateISO) || null; }
 
     function lastSunriseBefore(dtCity){
       const d0 = dtCity.toISODate();
       const dPrev = dtCity.minus({ days:1 }).toISODate();
-      const sun0 = getSunForDate(d0);
-      const sunP = getSunForDate(dPrev);
-      if(!sun0 || !sunP) return null;
-      const sr0 = DateTime.fromISO(sun0.sunrise, { zone: dtCity.zoneName });
-      const srP = DateTime.fromISO(sunP.sunrise, { zone: dtCity.zoneName });
-      return (dtCity >= sr0) ? sr0 : srP;
+      const s0 = getSun(d0);
+      const sp = getSun(dPrev);
+      if(!s0 || !sp) return null;
+
+      const sr0 = DateTime.fromISO(s0.sunrise, { zone: dtCity.zoneName });
+      const srp = DateTime.fromISO(sp.sunrise, { zone: dtCity.zoneName });
+      return (dtCity >= sr0) ? sr0 : srp;
     }
-    function isDaytime(dtCity, sun){
+
+    function isDay(dtCity, sun){
       const sr = DateTime.fromISO(sun.sunrise, { zone: dtCity.zoneName });
       const ss = DateTime.fromISO(sun.sunset,  { zone: dtCity.zoneName });
       return (dtCity >= sr && dtCity < ss);
     }
 
-    // --- Tamil time ---
-    function tamilTimeFromLastSunrise(dtCity, lastSunrise){
+    // ---- Tamil time ----
+    function tamilTime(dtCity, lastSunrise){
       const diffMin = dtCity.diff(lastSunrise, "minutes").minutes;
       const totalMin = ((diffMin % 1440) + 1440) % 1440;
       const nazhigai = Math.floor(totalMin/24) + 1;
@@ -744,20 +595,37 @@
       return { totalMin, nazhigai, minuteInNazhi, saamam, vinadi: dtCity.second };
     }
 
+    // ---- Rahu/Yama/Gulika (sunrise->sunset split into 8 parts) ----
+    // Index = which 1/8 part (1..8)
+    const RAHU_IDX = { 1:2, 2:7, 3:5, 4:6, 5:4, 6:3, 7:8 }; // Mon..Sun (Luxon: Mon=1..Sun=7)
+    const YAMA_IDX = { 1:5, 2:4, 3:3, 4:2, 5:1, 6:7, 7:6 };
+    const GULI_IDX = { 1:6, 2:5, 3:4, 4:3, 5:2, 6:1, 7:7 };
+
+    function segmentWindow(dtCity, sun, whichIdx){
+      const sr = DateTime.fromISO(sun.sunrise, { zone: dtCity.zoneName });
+      const ss = DateTime.fromISO(sun.sunset,  { zone: dtCity.zoneName });
+      const dayMin = ss.diff(sr, "minutes").minutes;
+      if(!(dayMin > 0)) return null;
+      const part = dayMin / 8;
+      const start = sr.plus({ minutes: part * (whichIdx - 1) });
+      const end   = sr.plus({ minutes: part * whichIdx });
+      return { start, end };
+    }
+
+    function fmtTime(dt){ return dt ? dt.toFormat("hh:mm a") : "—"; }
+
     function disclaimerText(){
       return [
-        `${APP_NAME}`,
-        ``,
-        `DISCLAIMER`,
-        `- Tamil solar month/day & Tamil year: simple approximate boundary table.`,
-        `- Tithi/Nakshatra/Paksha: approximate Sun/Moon longitude math (may differ from official panchangam).`,
-        `- Sunrise/Sunset: Open-Meteo API (used for day/night & last-sunrise cycle).`,
-        ``,
-        `DEPENDENCIES`,
-        `1) https://geocoding-api.open-meteo.com/`,
-        `2) https://api.open-meteo.com/`,
-        `3) https://fonts.googleapis.com/`,
-        `4) https://cdn.jsdelivr.net/`
+        "DISCLAIMER",
+        "- Tamil month/day/year: simple approximate boundary table.",
+        "- Tithi/Nakshatra/Paksha: fast approximate sun/moon longitude.",
+        "- Sunrise/Sunset: Open-Meteo API (used for day/night, Rahu/Yama/Gulika, last-sunrise cycle).",
+        "",
+        "DEPENDENCIES",
+        "1) https://geocoding-api.open-meteo.com/",
+        "2) https://api.open-meteo.com/",
+        "3) https://cdn.jsdelivr.net/",
+        "4) https://fonts.googleapis.com/"
       ].join("\n");
     }
 
@@ -782,46 +650,44 @@
       const dNext = dtCity.plus({ days:1 }).toISODate();
       sunForDateEl.textContent = d0;
 
+      // Share stamp (shows only in share mode)
+      shareStamp.textContent = `${state.city || DEFAULT_CITY} · ${dtCity.toFormat("dd LLL yyyy, hh:mm a")} · ${cityZone}`;
+
+      // Load sunrise/sunset only for 3 days (tiny cache)
       if(state.lat != null && state.lon != null){
-        if(!state.sunMap.has(dPrev) || !state.sunMap.has(d0) || !state.sunMap.has(dNext)){
-          try{
-            state.lastApi.sunrise = "loading";
-            await loadSunriseSunsetRange(state.lat, state.lon, cityZone, dPrev, dNext);
-            state.lastApi.sunrise = "ok";
-          }catch(e){
-            state.lastApi.sunrise = "failed";
-            showError("Sunrise/Sunset API failure", e.message);
-          }
+        try{
+          await loadSun3Days(state.lat, state.lon, cityZone, dPrev, d0, dNext);
+        }catch(e){
+          showError("Sunrise/Sunset API failure", e.message);
         }
       }
 
+      // Calendar from dtCity date
       const mInfo = tamilMonthFromDate(dtCity);
       const dayNo = tamilDayNumber(dtCity, mInfo);
       const yearName = tamilYearName(dtCity);
       const weekday = WEEKDAY_TA[dtCity.weekday] || "—";
 
-      const jd = julianDay(dtUtc);
-      const sunLon = sunEclLon(jd);
-      const moonLon = moonEclLon(jd);
-      const tithi = tithiFromLongitudes(moonLon, sunLon);
-      const nak = nakshatraFromMoonLon(moonLon);
+      // Panchang (fast)
+      const pan = panchang(dtUtc);
 
       outYear.textContent = `${yearName} ஆண்டு`;
       outSeason.textContent = mInfo.season;
       outMonth.textContent = mInfo.name;
-      outNakshatra.textContent = nak;
-      outPaksha.textContent = tithi.paksha;
-      outTithi.textContent = tithi.name;
+      outNakshatra.textContent = pan.nName;
+      outPaksha.textContent = pan.paksha;
+      outTithi.textContent = pan.tName;
       outDayNum.textContent = dayNo;
       outWeekday.textContent = weekday;
 
-      const sun = getSunForDate(d0);
+      // Time + day/night + day-cycle
+      const sun = getSun(d0);
       if(sun){
-        outDayNight.textContent = isDaytime(dtCity, sun) ? "பகல்" : "இரவு";
+        outDayNight.textContent = isDay(dtCity, sun) ? "பகல்" : "இரவு";
 
         const ls = lastSunriseBefore(dtCity);
         if(ls){
-          const tt = tamilTimeFromLastSunrise(dtCity, ls);
+          const tt = tamilTime(dtCity, ls);
           outSaamamNo.textContent = tt.saamam;
           outNaz.textContent = tt.nazhigai;
           outMin.textContent = tt.minuteInNazhi;
@@ -838,6 +704,20 @@
           outNazCycle.textContent = "—";
           outSaamamCycle.textContent = "—";
         }
+
+        // Rahu/Yama/Gulika windows
+        const wd = dtCity.weekday; // 1..7
+        const rahu = segmentWindow(dtCity, sun, RAHU_IDX[wd]);
+        const yama = segmentWindow(dtCity, sun, YAMA_IDX[wd]);
+        const guli = segmentWindow(dtCity, sun, GULI_IDX[wd]);
+
+        outRahuStart.textContent = rahu ? fmtTime(rahu.start) : "—";
+        outRahuEnd.textContent   = rahu ? fmtTime(rahu.end)   : "—";
+        outYamaStart.textContent = yama ? fmtTime(yama.start) : "—";
+        outYamaEnd.textContent   = yama ? fmtTime(yama.end)   : "—";
+        outGulikaStart.textContent = guli ? fmtTime(guli.start) : "—";
+        outGulikaEnd.textContent   = guli ? fmtTime(guli.end)   : "—";
+
       }else{
         outDayNight.textContent = "—";
         outSaamamNo.textContent = "—";
@@ -846,6 +726,10 @@
         outVinadi.textContent = dtCity.second;
         outNazCycle.textContent = "—";
         outSaamamCycle.textContent = "—";
+
+        outRahuStart.textContent = "—"; outRahuEnd.textContent = "—";
+        outYamaStart.textContent = "—"; outYamaEnd.textContent = "—";
+        outGulikaStart.textContent = "—"; outGulikaEnd.textContent = "—";
       }
 
       footNote.textContent = APP_NAME;
@@ -863,10 +747,7 @@
       }
 
       try{
-        state.lastApi.geocoding = "loading";
         const best = await geocodeCity(q);
-        state.lastApi.geocoding = "ok";
-
         state.city = [best.name, best.admin1].filter(Boolean).join(", ");
         state.lat = best.latitude;
         state.lon = best.longitude;
@@ -875,10 +756,8 @@
         cityTitle.textContent = state.city;
         cityTzEl.textContent = state.cityTz || "—";
 
-        state.sunMap.clear();
         await recalcAndRender();
       }catch(e){
-        state.lastApi.geocoding = "failed";
         showError("Geocoding API failure", e.message);
       }finally{
         if(!silent){
@@ -891,7 +770,6 @@
     async function shareScreenshot(){
       clearError();
       const shareArea = document.getElementById("shareArea");
-
       document.body.classList.add("sharing");
       await new Promise(r => setTimeout(r, 80));
 
@@ -903,10 +781,13 @@
         });
 
         const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 0.95));
-        if(!blob) throw new Error("Screenshot blob failed");
+        if(!blob) throw new Error("Screenshot failed");
 
-        const dt = getSelectedDateTime();
-        const safeName = `${APP_NAME}-${(state.city||DEFAULT_CITY)}-${dt.toFormat("yyyyLLdd-HHmm")}`.replace(/[^\w\u0B80-\u0BFF\-]+/g, "_");
+        const cityZone = state.cityTz || state.deviceTz;
+        const dtLocal = getSelectedDateTime().setZone(cityZone);
+        const safeName = `${APP_NAME}-${(state.city||DEFAULT_CITY)}-${dtLocal.toFormat("yyyyLLdd-HHmm")}`
+          .replace(/[^\w\u0B80-\u0BFF\-]+/g, "_");
+
         const file = new File([blob], `${safeName}.png`, { type: "image/png" });
 
         if(navigator.canShare && navigator.canShare({ files: [file] })){
@@ -933,11 +814,7 @@
     cityGo.addEventListener("click", () => setCity(cityInput.value));
     cityInput.addEventListener("keydown", (e) => { if(e.key === "Enter") setCity(cityInput.value); });
 
-    btnNow.addEventListener("click", async () => {
-      setDtInputNow();
-      await recalcAndRender();
-    });
-
+    btnNow.addEventListener("click", async () => { setDtInputNow(); await recalcAndRender(); });
     btnRefresh.addEventListener("click", () => recalcAndRender().catch(e => showError("Recalc failed", e.message)));
     btnShare.addEventListener("click", () => shareScreenshot());
 
@@ -948,14 +825,13 @@
     (async function init(){
       document.title = APP_NAME;
       deviceTzEl.textContent = state.deviceTz;
-
       cityInput.value = DEFAULT_CITY;
       setDtInputNow();
       infoBox.textContent = disclaimerText();
 
       await setCity(DEFAULT_CITY, { silent: true });
 
-      // If network blocked, still show some data without location
+      // If blocked network, still render without location (Rahu/Yama/Gulika unavailable)
       if(state.lat == null || state.lon == null){
         state.city = DEFAULT_CITY;
         cityTitle.textContent = DEFAULT_CITY;
@@ -963,7 +839,5 @@
       }
     })();
   </script>
-
-  <!-- AUTHOR INFO STORED IN HTML ONLY (not shown): Ramar Kandasamy · ram.kabil@gmailcom -->
 </body>
 </html>

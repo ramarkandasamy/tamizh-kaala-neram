@@ -8,7 +8,7 @@
 
   <title>தமிழ் கால நேரம்</title>
 
-  <!-- Keep author info ONLY in HTML (not displayed) -->
+  <!-- Author info ONLY in HTML (not displayed) -->
   <meta name="application-name" content="தமிழ் கால நேரம்">
   <meta name="apple-mobile-web-app-title" content="தமிழ் கால நேரம்">
   <meta name="author" content="Ramar Kandasamy">
@@ -19,29 +19,16 @@
   <meta name="keywords" content="தமிழ் கால நேரம், Tamil time, naazhigai, saamam, panchangam">
   <meta name="robots" content="index,follow">
 
-  <!-- Fonts: Tiro Tamil for Tamil text, Roboto for numbers -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Tiro+Tamil:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 
-  <!-- Luxon for timezone-aware date/time -->
+  <!-- Luxon -->
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
 
-  <!-- html2canvas for Share screenshot -->
+  <!-- html2canvas -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
-  <!-- JSON-LD (author embedded, not displayed) -->
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"SoftwareApplication",
-    "name":"தமிழ் கால நேரம்",
-    "applicationCategory":"UtilitiesApplication",
-    "operatingSystem":"Web",
-    "author":{"@type":"Person","name":"Ramar Kandasamy","email":"ram.kabil@gmailcom"},
-    "publisher":{"@type":"Person","name":"Ramar Kandasamy","email":"ram.kabil@gmailcom"}
-  }
-  </script>
 
   <style>
     :root{
@@ -69,7 +56,7 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* subtle watermark (not user-visible text; just pattern) */
+    /* subtle pattern watermark (no text) */
     body::before{
       content:"";
       position: fixed;
@@ -147,9 +134,7 @@
       text-overflow:ellipsis;
     }
 
-    .actions{
-      display:flex; align-items:center; gap:10px;
-    }
+    .actions{ display:flex; align-items:center; gap:10px; }
 
     .iconbtn{
       border:1px solid var(--stroke);
@@ -293,9 +278,7 @@
       font-family: "Roboto", system-ui, -apple-system, Segoe UI, sans-serif;
     }
 
-    .info{
-      border-top: 1px solid rgba(255,255,255,.07);
-    }
+    .info{ border-top: 1px solid rgba(255,255,255,.07); }
 
     details{ padding: 10px 16px 16px; }
     summary{
@@ -364,8 +347,7 @@
       white-space: pre-wrap;
     }
 
-    /* Share mode: hide controls/details/footer */
-    .no-share{ display: inline-flex; }
+    /* Share mode: ONLY hide. Do NOT set display for normal mode. */
     body.sharing .no-share{ display:none !important; }
     body.sharing details{ display:none !important; }
     body.sharing .footer{ display:none !important; }
@@ -382,9 +364,7 @@
 
 <body data-app="தமிழ் கால நேரம்">
   <!-- AUTHOR INFO STORED IN HTML ONLY (not shown): Ramar Kandasamy · ram.kabil@gmailcom -->
-  <div style="display:none">
-    தமிழ் கால நேரம் — Author: Ramar Kandasamy — Email: ram.kabil@gmailcom
-  </div>
+  <div style="display:none">தமிழ் கால நேரம் — Author: Ramar Kandasamy — Email: ram.kabil@gmailcom</div>
 
   <div class="wrap">
     <div id="shareArea">
@@ -438,11 +418,18 @@
             <div class="line"><div class="k">ஆண்டு</div><div class="v" id="outYear">—</div></div>
             <div class="line"><div class="k">பருவம்</div><div class="v" id="outSeason">—</div></div>
             <div class="line"><div class="k">மாதம்</div><div class="v" id="outMonth">—</div></div>
+
             <div class="line"><div class="k">நட்சத்திரம்</div><div class="v" id="outNakshatra">—</div></div>
+
+            <!-- NEW -->
+            <div class="line"><div class="k">வளர்பிறை / தேய்பிறை</div><div class="v" id="outPaksha">—</div></div>
+
             <div class="line"><div class="k">திதி</div><div class="v" id="outTithi">—</div></div>
+
             <div class="line"><div class="k">தேதி</div><div class="v"><span class="num" id="outDayNum">—</span></div></div>
             <div class="line"><div class="k">கிழமை</div><div class="v" id="outWeekday">—</div></div>
             <div class="line"><div class="k">பகல் / இரவு</div><div class="v bigOnly" id="outDayNight">—</div></div>
+
             <div class="line"><div class="k">சாமம்</div><div class="v"><span class="num" id="outSaamamNo">—</span> / <span class="num">8</span></div></div>
             <div class="line"><div class="k">நாழிகை</div><div class="v"><span class="num" id="outNaz">—</span> / <span class="num">60</span></div></div>
             <div class="line"><div class="k">நிமிடம்</div><div class="v"><span class="num" id="outMin">—</span></div></div>
@@ -478,14 +465,19 @@
   </div>
 
   <script>
-    // Author (HTML only): Ramar Kandasamy · ram.kabil@gmailcom
     const { DateTime } = luxon;
 
-    // ---------- Constants ----------
+    // Show any JS errors in the red box (so it never "silently breaks")
+    window.addEventListener("error", (e) => {
+      const box = document.getElementById("errBox");
+      if(!box) return;
+      box.style.display = "block";
+      box.textContent = `Error: ${e.message}\nSource: ${e.filename || ""}:${e.lineno || ""}`;
+    });
+
     const APP_NAME = "தமிழ் கால நேரம்";
     const DEFAULT_CITY = "Madurai";
 
-    // Tamil solar month boundaries (simple table)
     const TAMIL_MONTHS = [
       { name: "சித்திரை",   start: { m: 4,  d: 14 }, season: "இளவேனில்" },
       { name: "வைகாசி",    start: { m: 5,  d: 15 }, season: "இளவேனில்" },
@@ -501,7 +493,6 @@
       { name: "பங்குனி",   start: { m: 3,  d: 14 }, season: "பின்பனி" }
     ];
 
-    // 60-year cycle (simple anchor for Apr 14, 1987 = Prabhava)
     const TAMIL_YEAR_NAMES = [
       "பிரபவ","விபவ","சுக்ல","பிரமோதூத","பிரஜோற்பத்தி","ஆங்கீரச",
       "ஸ்ரீமுக","பாவ","யுவ","தாது","ஈஸ்வர","வெகுதான்ய",
@@ -529,13 +520,6 @@
       "மூலம்","பூராடம்","உத்திராடம்","திருவோணம்","அவிட்டம்","சதயம்","பூரட்டாதி","உத்திரட்டாதி","ரேவதி"
     ];
 
-    const YOGA_NAMES = [
-      "விஷ்கம்பம்","பிரீதி","ஆயுஷ்மான்","சௌபாக்யம்","சோபனம்","அதிகண்டம்","சுகர்மா","த்ருதி","சூலம்",
-      "கண்டம்","விருத்தி","துருவம்","வ்யாகாதம்","ஹர்ஷணம்","வஜ்ரம்","சித்தி","வ்யதீபாதம்","வரியான்",
-      "பரிகம்","சிவம்","சித்தம்","சாத்யம்","சுபம்","சுக்லம்","பிரம்மம்","இந்திரம்","வைத்ருதி"
-    ];
-
-    // ---------- DOM ----------
     const el = (id) => document.getElementById(id);
 
     const cityTitle = el("cityTitle");
@@ -556,6 +540,7 @@
     const outSeason = el("outSeason");
     const outMonth = el("outMonth");
     const outNakshatra = el("outNakshatra");
+    const outPaksha = el("outPaksha");
     const outTithi = el("outTithi");
     const outDayNum = el("outDayNum");
     const outWeekday = el("outWeekday");
@@ -572,19 +557,16 @@
     const btnRefresh = el("btnRefresh");
     const btnShare = el("btnShare");
 
-    // ---------- State ----------
     const state = {
       deviceTz: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
       city: DEFAULT_CITY,
-      country: "",
       cityTz: null,
       lat: null,
       lon: null,
-      sunMap: new Map(), // dateISO -> {sunrise, sunset} in city timezone
+      sunMap: new Map(),
       lastApi: { geocoding:"—", sunrise:"—" }
     };
 
-    // ---------- UI helpers ----------
     function clearError(){
       errBox.style.display = "none";
       errBox.textContent = "";
@@ -606,11 +588,9 @@
     function getSelectedDateTime(){
       const tz = (modeInput.value === "city" && state.cityTz) ? state.cityTz : state.deviceTz;
       if(!dtInput.value) return DateTime.now().setZone(tz);
-      // Interpret wall-clock in tz
       return DateTime.fromISO(dtInput.value, { zone: tz });
     }
 
-    // ---------- Tamil calendar helpers ----------
     function tamilMonthFromDate(localDate){
       const y = localDate.year;
       const zone = localDate.zoneName;
@@ -625,7 +605,6 @@
       }
       if(best) return best;
 
-      // before Chithirai start => Panguni from previous year
       const prevYear = y - 1;
       const panguni = TAMIL_MONTHS.find(m => m.name === "பங்குனி");
       return {
@@ -639,7 +618,6 @@
     }
 
     function tamilYearName(localDate){
-      // boundary Apr 14
       const zone = localDate.zoneName;
       const y = localDate.year;
       const boundaryThis = DateTime.fromObject({ year:y, month:4, day:14 }, { zone }).startOf("day");
@@ -653,7 +631,7 @@
       return TAMIL_YEAR_NAMES[idx] || "—";
     }
 
-    // ---------- Astronomy (approx) ----------
+    // --- Astronomy (approx) ---
     function julianDay(dtUtc){
       const y = dtUtc.year;
       const m = dtUtc.month;
@@ -705,18 +683,18 @@
 
       return fixAngle(lon);
     }
-
     function tithiFromLongitudes(moonLon, sunLon){
       const diff = fixAngle(moonLon - sunLon);
-      const t = Math.floor(diff/12) + 1;
-      return { name: TITHI_NAMES[t-1] || "—", diffDeg: diff };
+      const t = Math.floor(diff/12) + 1; // 1..30
+      const paksha = (t <= 15) ? "வளர்பிறை" : "தேய்பிறை";
+      return { name: TITHI_NAMES[t-1] || "—", paksha };
     }
     function nakshatraFromMoonLon(moonLon){
       const n = Math.floor(fixAngle(moonLon) / (360/27)) + 1;
       return NAKSHATRA_NAMES[n-1] || "—";
     }
 
-    // ---------- APIs ----------
+    // --- APIs ---
     async function geocodeCity(name){
       const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=5&language=en&format=json`;
       const r = await fetch(url);
@@ -725,7 +703,6 @@
       if(!j.results || !j.results.length) throw new Error("City not found");
       return j.results[0];
     }
-
     async function loadSunriseSunsetRange(lat, lon, tz, startISO, endISO){
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&daily=sunrise,sunset&timezone=${encodeURIComponent(tz)}&start_date=${startISO}&end_date=${endISO}`;
       const r = await fetch(url);
@@ -739,7 +716,6 @@
         if(sunrise && sunset) state.sunMap.set(d, { sunrise, sunset });
       }
     }
-
     function getSunForDate(dateISO){ return state.sunMap.get(dateISO) || null; }
 
     function lastSunriseBefore(dtCity){
@@ -752,47 +728,42 @@
       const srP = DateTime.fromISO(sunP.sunrise, { zone: dtCity.zoneName });
       return (dtCity >= sr0) ? sr0 : srP;
     }
-
     function isDaytime(dtCity, sun){
       const sr = DateTime.fromISO(sun.sunrise, { zone: dtCity.zoneName });
       const ss = DateTime.fromISO(sun.sunset,  { zone: dtCity.zoneName });
       return (dtCity >= sr && dtCity < ss);
     }
 
-    // ---------- Tamil time ----------
+    // --- Tamil time ---
     function tamilTimeFromLastSunrise(dtCity, lastSunrise){
       const diffMin = dtCity.diff(lastSunrise, "minutes").minutes;
-      const totalMin = ((diffMin % 1440) + 1440) % 1440; // 0..1439
-      const nazhigai = Math.floor(totalMin/24) + 1;      // 1..60
-      const minuteInNazhi = Math.floor(totalMin % 24);   // 0..23
-      const saamam = Math.floor(totalMin/180) + 1;       // 1..8
+      const totalMin = ((diffMin % 1440) + 1440) % 1440;
+      const nazhigai = Math.floor(totalMin/24) + 1;
+      const minuteInNazhi = Math.floor(totalMin % 24);
+      const saamam = Math.floor(totalMin/180) + 1;
       return { totalMin, nazhigai, minuteInNazhi, saamam, vinadi: dtCity.second };
     }
 
-    // ---------- Disclaimer text ----------
     function disclaimerText(){
       return [
         `${APP_NAME}`,
         ``,
         `DISCLAIMER`,
-        `- Tamil solar month/day & Tamil year are computed using a SIMPLE APPROXIMATE boundary table (Sankranti-like dates).`,
-        `- Tithi/Nakshatra/Yoga/Karana are computed using approximate Sun/Moon ecliptic longitudes; results may differ from official panchangam.`,
-        `- Sunrise/Sunset are fetched from a public API for the selected city & date; used for day/night and for “last sunrise” day-cycle.`,
+        `- Tamil solar month/day & Tamil year: simple approximate boundary table.`,
+        `- Tithi/Nakshatra/Paksha: approximate Sun/Moon longitude math (may differ from official panchangam).`,
+        `- Sunrise/Sunset: Open-Meteo API (used for day/night & last-sunrise cycle).`,
         ``,
-        `DEPENDENCIES / SERVICES`,
-        `1) Open-Meteo Geocoding API: https://geocoding-api.open-meteo.com/`,
-        `2) Open-Meteo Forecast API: https://api.open-meteo.com/`,
-        `3) Google Fonts: https://fonts.googleapis.com/`,
-        `4) Luxon: https://cdn.jsdelivr.net/`,
-        `5) html2canvas: https://cdn.jsdelivr.net/`
+        `DEPENDENCIES`,
+        `1) https://geocoding-api.open-meteo.com/`,
+        `2) https://api.open-meteo.com/`,
+        `3) https://fonts.googleapis.com/`,
+        `4) https://cdn.jsdelivr.net/`
       ].join("\n");
     }
 
-    // ---------- Core render ----------
     async function recalcAndRender(){
       clearError();
 
-      // Top title = City
       cityTitle.textContent = state.city || DEFAULT_CITY;
       deviceTzEl.textContent = state.deviceTz;
       cityTzEl.textContent = state.cityTz || "—";
@@ -803,7 +774,6 @@
       const dtLocal = getSelectedDateTime().setZone(usingTz);
       const dtUtc = dtLocal.toUTC();
 
-      // Use city timezone for sunrise/sunset and day-cycle
       const cityZone = state.cityTz || state.deviceTz;
       const dtCity = dtLocal.setZone(cityZone);
 
@@ -812,46 +782,42 @@
       const dNext = dtCity.plus({ days:1 }).toISODate();
       sunForDateEl.textContent = d0;
 
-      // Ensure sunrise cache
-      if(!state.sunMap.has(dPrev) || !state.sunMap.has(d0) || !state.sunMap.has(dNext)){
-        try{
-          state.lastApi.sunrise = "loading";
-          await loadSunriseSunsetRange(state.lat, state.lon, cityZone, dPrev, dNext);
-          state.lastApi.sunrise = "ok";
-        }catch(e){
-          state.lastApi.sunrise = "failed";
-          showError("Sunrise/Sunset API failure", e.message);
+      if(state.lat != null && state.lon != null){
+        if(!state.sunMap.has(dPrev) || !state.sunMap.has(d0) || !state.sunMap.has(dNext)){
+          try{
+            state.lastApi.sunrise = "loading";
+            await loadSunriseSunsetRange(state.lat, state.lon, cityZone, dPrev, dNext);
+            state.lastApi.sunrise = "ok";
+          }catch(e){
+            state.lastApi.sunrise = "failed";
+            showError("Sunrise/Sunset API failure", e.message);
+          }
         }
       }
 
-      // Calendar (by dtCity date)
       const mInfo = tamilMonthFromDate(dtCity);
       const dayNo = tamilDayNumber(dtCity, mInfo);
       const yearName = tamilYearName(dtCity);
       const weekday = WEEKDAY_TA[dtCity.weekday] || "—";
 
-      // Panchangam (approx)
       const jd = julianDay(dtUtc);
       const sunLon = sunEclLon(jd);
       const moonLon = moonEclLon(jd);
       const tithi = tithiFromLongitudes(moonLon, sunLon);
       const nak = nakshatraFromMoonLon(moonLon);
 
-      // Fill basics
       outYear.textContent = `${yearName} ஆண்டு`;
       outSeason.textContent = mInfo.season;
       outMonth.textContent = mInfo.name;
       outNakshatra.textContent = nak;
+      outPaksha.textContent = tithi.paksha;
       outTithi.textContent = tithi.name;
       outDayNum.textContent = dayNo;
       outWeekday.textContent = weekday;
-      outVinadi.textContent = dtCity.second;
 
-      // Day/night + Tamil time (needs sunrise data)
       const sun = getSunForDate(d0);
       if(sun){
-        const dayNight = isDaytime(dtCity, sun) ? "பகல்" : "இரவு";
-        outDayNight.textContent = dayNight;
+        outDayNight.textContent = isDaytime(dtCity, sun) ? "பகல்" : "இரவு";
 
         const ls = lastSunriseBefore(dtCity);
         if(ls){
@@ -868,6 +834,7 @@
           outSaamamNo.textContent = "—";
           outNaz.textContent = "—";
           outMin.textContent = "—";
+          outVinadi.textContent = dtCity.second;
           outNazCycle.textContent = "—";
           outSaamamCycle.textContent = "—";
         }
@@ -876,6 +843,7 @@
         outSaamamNo.textContent = "—";
         outNaz.textContent = "—";
         outMin.textContent = "—";
+        outVinadi.textContent = dtCity.second;
         outNazCycle.textContent = "—";
         outSaamamCycle.textContent = "—";
       }
@@ -900,7 +868,6 @@
         state.lastApi.geocoding = "ok";
 
         state.city = [best.name, best.admin1].filter(Boolean).join(", ");
-        state.country = best.country || "";
         state.lat = best.latitude;
         state.lon = best.longitude;
         state.cityTz = best.timezone || null;
@@ -908,9 +875,7 @@
         cityTitle.textContent = state.city;
         cityTzEl.textContent = state.cityTz || "—";
 
-        // reset sun cache for new location
         state.sunMap.clear();
-
         await recalcAndRender();
       }catch(e){
         state.lastApi.geocoding = "failed";
@@ -923,7 +888,6 @@
       }
     }
 
-    // ---------- Share screenshot ----------
     async function shareScreenshot(){
       clearError();
       const shareArea = document.getElementById("shareArea");
@@ -965,7 +929,7 @@
       }
     }
 
-    // ---------- Events ----------
+    // Events
     cityGo.addEventListener("click", () => setCity(cityInput.value));
     cityInput.addEventListener("keydown", (e) => { if(e.key === "Enter") setCity(cityInput.value); });
 
@@ -980,20 +944,18 @@
     dtInput.addEventListener("change", () => recalcAndRender().catch(e => showError("Recalc failed", e.message)));
     modeInput.addEventListener("change", () => recalcAndRender().catch(e => showError("Recalc failed", e.message)));
 
-    // ---------- Init ----------
+    // Init
     (async function init(){
       document.title = APP_NAME;
-
-      // defaults
       deviceTzEl.textContent = state.deviceTz;
+
       cityInput.value = DEFAULT_CITY;
       setDtInputNow();
       infoBox.textContent = disclaimerText();
 
-      // set default city and then compute
       await setCity(DEFAULT_CITY, { silent: true });
 
-      // if setCity failed due to network, still try to render what we can
+      // If network blocked, still show some data without location
       if(state.lat == null || state.lon == null){
         state.city = DEFAULT_CITY;
         cityTitle.textContent = DEFAULT_CITY;

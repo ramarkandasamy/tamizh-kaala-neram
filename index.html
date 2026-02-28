@@ -10,7 +10,6 @@
   <meta name="theme-color" content="#0f1117">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <!-- Optional (better for iOS): add icons/icon-192.png later -->
   <link rel="apple-touch-icon" href="icons/icon-192.png">
 
   <!-- Fonts: Tiro Tamil for Tamil letters, Roboto for numbers -->
@@ -94,8 +93,8 @@
       outline: none;
     }
     .input{
-      flex: 1 1 260px;
-      min-width: 220px;
+      flex: 1 1 220px;
+      min-width: 190px;
     }
     .btn{
       cursor:pointer;
@@ -106,11 +105,10 @@
     }
     .btn:hover{ background: rgba(255,255,255,.14); }
     .btn:active{ transform: translateY(1px); }
-
     .input:focus, .btn:focus{ border-color: var(--focus); box-shadow: 0 0 0 4px rgba(255,255,255,.08); }
 
     /* Search dropdown */
-    .searchWrap{ position: relative; flex: 1 1 260px; }
+    .searchWrap{ position: relative; flex: 2 1 280px; min-width: 240px; }
     .results{
       position:absolute;
       top: calc(100% + 8px);
@@ -213,6 +211,13 @@
       margin-top: 10px;
     }
     #installBtn{ display:none; }
+
+    .subMeta{
+      color: var(--muted2);
+      font-size: 12px;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
   </style>
 </head>
 
@@ -225,6 +230,7 @@
           <div>
             <h1 id="cityTitle">Madurai</h1>
             <div class="meta" id="sunMeta">—</div>
+            <div class="subMeta" id="selMeta">—</div>
           </div>
 
           <div class="installRow">
@@ -237,7 +243,10 @@
             <input id="citySearch" class="input" placeholder="Search city (default: Madurai)" autocomplete="off" />
             <div id="results" class="results"></div>
           </div>
-          <input id="timeInput" class="input" type="time" step="1" style="max-width:160px" />
+
+          <!-- NEW: date + time -->
+          <input id="dateInput" class="input" type="date" style="max-width:180px" />
+          <input id="timeInput" class="input" type="time" step="1" style="max-width:150px" />
           <button id="nowBtn" class="btn">Now</button>
         </div>
 
@@ -363,7 +372,7 @@
     ];
 
     // ----------------------------
-    // Panchangam (tithi) + hidden nakshatra/yoga/karana
+    // Panchangam (tithi/nakshatra/yoga/karana) - compact longitudes
     // ----------------------------
     const TITHI_NAMES = [
       "பிரதமை","துதியை","திருதியை","சதுர்த்தி","பஞ்சமி","சஷ்டி","சப்தமி","அஷ்டமி","நவமி","தசமி",
@@ -479,8 +488,10 @@
     // ----------------------------
     const elCityTitle = document.getElementById("cityTitle");
     const elSunMeta   = document.getElementById("sunMeta");
+    const elSelMeta   = document.getElementById("selMeta");
     const elSearch    = document.getElementById("citySearch");
     const elResults   = document.getElementById("results");
+    const elDate      = document.getElementById("dateInput");
     const elTime      = document.getElementById("timeInput");
     const elNow       = document.getElementById("nowBtn");
 
@@ -502,6 +513,9 @@
 
     function numHTML(n){ return `<span class="num">${n}</span>`; }
 
+    // IMPORTANT:
+    // - For India we can safely force Asia/Kolkata.
+    // - For non-India cities, a correct IANA timezone requires a timezone lookup service (lat/lon -> tz).
     function tzForSelected(){
       return (selected.country_code === "in") ? "Asia/Kolkata" : Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
@@ -514,31 +528,28 @@
       }).format(d);
     }
 
-    function datePartsInTZ(d, tz){
-      const parts = new Intl.DateTimeFormat("en-CA", {
-        timeZone: tz,
-        year: "numeric", month: "2-digit", day: "2-digit",
-        hour: "2-digit", minute: "2-digit", second: "2-digit",
-        hour12: false
-      }).formatToParts(d);
-      const get = (type) => parts.find(p => p.type === type)?.value;
-      return {
-        hour: Number(get("hour")),
-        minute: Number(get("minute")),
-        second: Number(get("second")),
-      };
+    function isoDateLocal(d){
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const day = String(d.getDate()).padStart(2,"0");
+      return `${y}-${m}-${day}`;
     }
 
-    function setTimeInputToNow(){
-      const tz = tzForSelected();
-      const p = datePartsInTZ(new Date(), tz);
-      elTime.value = `${String(p.hour).padStart(2,"0")}:${String(p.minute).padStart(2,"0")}:${String(p.second).padStart(2,"0")}`;
-    }
-
-    function buildTargetDateInLocalDay(){
+    function setDateTimeToNow(){
       const now = new Date();
-      const [hh, mm, ss] = (elTime.value || "00:00:00").split(":").map(Number);
-      return new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh||0, mm||0, ss||0, 0);
+      elDate.value = isoDateLocal(now);
+      elTime.value = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}:${String(now.getSeconds()).padStart(2,"0")}`;
+    }
+
+    // build target Date from selected date + time (in device local time)
+    function buildTargetDate(){
+      const dateStr = elDate.value;   // YYYY-MM-DD
+      const timeStr = elTime.value || "00:00:00";
+      if (!dateStr) return new Date();
+
+      const [yy, mm, dd] = dateStr.split("-").map(Number);
+      const [hh, mi, ss] = timeStr.split(":").map(Number);
+      return new Date(yy, (mm||1)-1, dd||1, hh||0, mi||0, ss||0, 0);
     }
 
     function getTamilMonthAndStart(date){
@@ -554,10 +565,9 @@
       return { month:"—", startDate:null };
     }
 
-    // Tamil year name, Tamil New Year approx = Apr 14
     function getTamilYearName(date){
       const y = date.getFullYear();
-      const tamilNewYearApprox = new Date(y, 3, 14, 0,0,0,0);
+      const tamilNewYearApprox = new Date(y, 3, 14, 0,0,0,0); // Apr 14
       const baseYear = (date >= tamilNewYearApprox) ? y : (y - 1);
       const offset = ((baseYear - 1987) % 60 + 60) % 60;
       return TAMIL_YEAR_NAMES_60[offset] || "—";
@@ -589,13 +599,12 @@
           };
           elSearch.value = title;
           hideResults();
-          setTimeInputToNow();
           compute();
         });
-        elResults.appendChild(div);
+        elResults.classList.add("show");
       });
-      elResults.classList.add("show");
     }
+
     async function searchCity(q){
       const query = q.trim();
       if (query.length < 2) { hideResults(); return; }
@@ -608,39 +617,35 @@
     }
 
     // ----------------------------
-    // Main compute
+    // Main compute (sunrise/sunset + tamil time)
     // ----------------------------
     function compute(){
       const tz = tzForSelected();
-      tzWarn.style.display = "none";
-      if (selected.country_code !== "in") {
-        tzWarn.style.display = "block";
-        tzWarn.textContent =
-          "Note: India வெளியே உள்ள நகரங்களுக்கு timezone lat/lon மூலம் பெற key தேவை. இப்போது device timezone பயன்படுத்தப்படுகிறது.";
-      }
+      const target = buildTargetDate();
 
-      const target = buildTargetDateInLocalDay();
+      // Show selected date/time
+      elSelMeta.innerHTML =
+        `Selected: <span class="num">${elDate.value || ""}</span> <span class="num">${elTime.value || ""}</span>`;
 
-      // Sunrise/sunset
-      const today = new Date();
-      const timesT = SunCalc.getTimes(today, selected.lat, selected.lon);
-      const sunrise = timesT.sunrise;
-      const sunset  = timesT.sunset;
+      // Sunrise/sunset for selected DATE (not "today")
+      const times = SunCalc.getTimes(target, selected.lat, selected.lon);
+      const sunrise = times.sunrise;
+      const sunset  = times.sunset;
 
-      // Panchangam
+      // Panchangam at selected moment
       const p = panchangamFromDate(target);
 
-      // Day/night
+      // Day/night (based on sunrise/sunset)
       const isPagal = (target >= sunrise && target < sunset);
       const pagalIravu = isPagal ? "பகல்" : "இரவு";
 
-      // Samam (1..4) within day/night
+      // Samam in that pagal/iravu block (4 samam per block, 180 min each)
       const base = isPagal ? sunrise : sunset;
       const minFromBase = (target.getTime() - base.getTime()) / 60000;
       let samamNo = Math.floor(minFromBase / 180) + 1;
       samamNo = Math.max(1, Math.min(4, samamNo));
 
-      // Naazhigai etc from sunrise (wrap to 0..1440)
+      // Naazhigai cycle relative to sunrise (60 naazhigai in 24h)
       const deltaMin = (target.getTime() - sunrise.getTime()) / 60000;
       const deltaSec = (target.getTime() - sunrise.getTime()) / 1000;
 
@@ -650,10 +655,10 @@
 
       const secondsRema = ((Math.floor(deltaSec) % 60) + 60) % 60;
       const secondsIntoNazhi = minuteInNazhi * 60 + secondsRema;
-      let vinadiNo = Math.floor(secondsIntoNazhi / 24) + 1;
+      let vinadiNo = Math.floor(secondsIntoNazhi / 24) + 1; // 1..60
       vinadiNo = Math.max(1, Math.min(60, vinadiNo));
 
-      // Tamil month/day
+      // Tamil month/day (approx sankranti)
       const tamilMonthInfo = getTamilMonthAndStart(target);
       const tamilMonth = tamilMonthInfo.month;
 
@@ -667,25 +672,26 @@
       const tamilYear = getTamilYearName(target);
       const weekdayTamil = TAMIL_WEEKDAYS[target.getDay()] || "—";
 
-      // Top
+      // City top + sunrise/sunset
       elCityTitle.textContent = selected.short || selected.label;
-      elSunMeta.innerHTML = `Sunrise <span class="num">${formatTime(sunrise, tz, true)}</span> • Sunset <span class="num">${formatTime(sunset, tz, true)}</span>`;
+      elSunMeta.innerHTML =
+        `Sunrise <span class="num">${formatTime(sunrise, tz, true)}</span> • Sunset <span class="num">${formatTime(sunset, tz, true)}</span>`;
 
-      // Visible
-      outYear.textContent = tamilYear;
-      outSeason.textContent = tamilSeason;
-      outMonth.textContent = tamilMonth;
-      outTithi.textContent = `${p.tithiName} (${p.paksha})`;
-      outDayNo.innerHTML = numHTML(tamilDay);
-      outWeekday.textContent = weekdayTamil;
+      // Visible lines
+      document.getElementById("outYear").textContent = tamilYear;
+      document.getElementById("outSeason").textContent = tamilSeason;
+      document.getElementById("outMonth").textContent = tamilMonth;
+      document.getElementById("outTithi").textContent = `${p.tithiName} (${p.paksha})`;
+      document.getElementById("outDayNo").innerHTML = numHTML(tamilDay);
+      document.getElementById("outWeekday").textContent = weekdayTamil;
 
-      outPagalIravu.textContent = pagalIravu;
-      outSamam.innerHTML = `${numHTML(samamNo)}வது`;
-      outNazhi.innerHTML = `${numHTML(dayNazhiNo)}வது`;
-      outMinute.innerHTML = numHTML(minuteInNazhi);
-      outVinadi.innerHTML = `${numHTML(vinadiNo)}வது`;
+      document.getElementById("outPagalIravu").textContent = pagalIravu;
+      document.getElementById("outSamam").innerHTML = `${numHTML(samamNo)}வது`;
+      document.getElementById("outNazhi").innerHTML = `${numHTML(dayNazhiNo)}வது`;
+      document.getElementById("outMinute").innerHTML = numHTML(minuteInNazhi);
+      document.getElementById("outVinadi").innerHTML = `${numHTML(vinadiNo)}வது`;
 
-      // Hidden
+      // Hidden info
       infoPanch.innerHTML =
         `<b>பஞ்சாங்கம்</b><br>` +
         `திதி: ${p.tithiName} (${p.paksha})<br>` +
@@ -695,12 +701,25 @@
 
       infoCalc.innerHTML =
         `<div style="margin-top:10px;"><b>Details</b></div>` +
-        `<div><code>JD=${p.JD.toFixed(5)} • Sunλ=${p.sunLon.toFixed(3)}° • Moonλ=${p.moonLon.toFixed(3)}°</code></div>` +
-        `<div><code>Δλ=${p.diff.toFixed(3)}° → tithi=${p.tithiIndex}</code></div>` +
+        `<div><code>Selected Date: ${elDate.value} ${elTime.value}</code></div>` +
+        `<div><code>Lat=${selected.lat.toFixed(4)} Lon=${selected.lon.toFixed(4)}</code></div>` +
+        `<div><code>Sunrise=${sunrise.toString()}</code></div>` +
+        `<div><code>Sunset=${sunset.toString()}</code></div>` +
+        `<div><code>JD=${p.JD.toFixed(5)} • Sunλ=${p.sunLon.toFixed(3)}° • Moonλ=${p.moonLon.toFixed(3)}° • Δλ=${p.diff.toFixed(3)}°</code></div>` +
         `<div><code>Naazhigai=${dayNazhiNo}, minute=${minuteInNazhi}, vinadi=${vinadiNo}</code></div>`;
+
+      // Timezone warning
+      tzWarn.style.display = "none";
+      if (selected.country_code !== "in") {
+        tzWarn.style.display = "block";
+        tzWarn.textContent =
+          "Timezone note: இந்த நகரத்தின் local time-zone auto-ஆ கண்டுபிடிக்க ‘lat/lon → timezone’ lookup தேவை. இப்போது device timezone-ல் time display ஆகும். SunCalc கணக்குகள் lat/lon + date அடிப்படையில் சரியாக வரும்; ஆனால் காட்டும் time-string local timezone mismatch ஆகலாம்.";
+      }
     }
 
+    // ----------------------------
     // Events
+    // ----------------------------
     elSearch.addEventListener("input", () => {
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => searchCity(elSearch.value), 250);
@@ -708,14 +727,15 @@
     elSearch.addEventListener("focus", () => { if (elResults.innerHTML.trim()) elResults.classList.add("show"); });
     document.addEventListener("click", (e) => { if (!elResults.contains(e.target) && e.target !== elSearch) hideResults(); });
 
-    elNow.addEventListener("click", () => { setTimeInputToNow(); compute(); });
+    elNow.addEventListener("click", () => { setDateTimeToNow(); compute(); });
+    elDate.addEventListener("change", compute);
     elTime.addEventListener("change", compute);
 
     // Init
     (function init(){
-      elSearch.value = "Madurai";
+      document.getElementById("citySearch").value = "Madurai";
       selected = { ...DEFAULT };
-      setTimeInputToNow();
+      setDateTimeToNow();
       compute();
     })();
   </script>

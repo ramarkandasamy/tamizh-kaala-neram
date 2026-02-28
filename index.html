@@ -14,6 +14,10 @@
   <meta name="apple-mobile-web-app-title" content="தமிழ் கால நேரம்">
   <meta name="description" content="தமிழ் கால நேரம் — நாழிகை / சாமம் / பஞ்சாங்கம்.">
 
+  <!-- PWA essentials -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,10 +36,9 @@
       --muted:rgba(255,255,255,.62);
       --shadow:0 18px 60px rgba(0,0,0,.45);
       --r:20px;
-      --card:rgba(255,255,255,.055); /* solid (no gradient) to avoid banding */
+      --card:rgba(255,255,255,.055);
       --card2:rgba(0,0,0,.22);
     }
-
     *{box-sizing:border-box;}
     html,body{height:100%;}
     body{
@@ -48,7 +51,7 @@
       overflow-x:hidden;
     }
 
-    /* FIX: background gradients are drawn in fixed pseudo-layers so they never "break" mid-page */
+    /* Stable background gradient layers */
     body::before{
       content:"";
       position:fixed;
@@ -78,14 +81,7 @@
       transform: translateZ(0);
     }
 
-    .wrap{
-      position:relative;
-      z-index:1;
-      max-width:760px;
-      margin:0 auto;
-      padding:22px 14px 40px;
-    }
-
+    .wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:22px 14px 40px;}
     .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;}
     .brand{display:flex;align-items:center;gap:10px;min-width:0;}
     .logo{
@@ -103,7 +99,7 @@
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
 
-    .actions{display:flex;gap:10px;align-items:center;}
+    .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
     .iconbtn{
       border:1px solid var(--stroke);
       background:rgba(255,255,255,.07);
@@ -120,9 +116,10 @@
     }
     .iconbtn:hover{background:rgba(255,255,255,.10);}
     .iconbtn:active{transform:scale(.98);}
+    .iconbtn[disabled]{opacity:.45;cursor:not-allowed;}
 
     .card{
-      background: var(--card); /* solid */
+      background: var(--card);
       border:1px solid var(--stroke);
       border-radius:var(--r);
       box-shadow:var(--shadow);
@@ -165,11 +162,10 @@
       font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
     }
 
-    /* CLEAN LIST (consistent pattern all rows) */
     .list{
       border-top:1px solid rgba(255,255,255,.07);
       padding:6px 16px 10px;
-      background: rgba(0,0,0,.08); /* subtle uniform fill to prevent banding */
+      background: rgba(0,0,0,.08);
     }
     .row{
       display:flex;justify-content:space-between;gap:14px;
@@ -182,8 +178,6 @@
     .v{text-align:right;font-size:20px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .big{font-size:24px;}
     .num{font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;font-variant-numeric:tabular-nums;}
-    .range{font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;}
-    .dash{opacity:.55;padding:0 8px;}
 
     .err{
       display:none;
@@ -239,7 +233,6 @@
     body.sharing details{display:none !important;}
     body.sharing .footer{display:none !important;}
 
-    /* Share-only stamp */
     .shareStamp{
       display:none;
       margin: 10px 0 0;
@@ -253,6 +246,8 @@
     @media(max-width:520px){
       .v{font-size:19px;}
       .big{font-size:22px;}
+      .actions{gap:8px;}
+      .iconbtn{padding:10px 10px;}
     }
   </style>
 </head>
@@ -273,13 +268,15 @@
         </div>
 
         <div class="actions no-share">
+          <button class="iconbtn" id="btnInstall" title="Install" style="display:none">
+            <span aria-hidden="true">⬇️</span><span class="num">Install</span>
+          </button>
           <button class="iconbtn" id="btnShare" title="Share"><span aria-hidden="true">📤</span><span class="num">Share</span></button>
           <button class="iconbtn" id="btnNow" title="Now"><span aria-hidden="true">⏱️</span><span class="num">Now</span></button>
           <button class="iconbtn" id="btnRefresh" title="Refresh"><span aria-hidden="true">↻</span><span class="num">Refresh</span></button>
         </div>
       </div>
 
-      <!-- Share-only stamp: includes selected date/time -->
       <div class="shareStamp" id="shareStamp">—</div>
 
       <div class="card">
@@ -316,18 +313,7 @@
           <div class="row"><div class="k">நிமிடம்</div><div class="v"><span class="num" id="outMin">—</span></div></div>
           <div class="row"><div class="k">வினாடி</div><div class="v"><span class="num" id="outVinadi">—</span></div></div>
 
-          <div class="row">
-            <div class="k">ராகு காலம்</div>
-            <div class="v range"><span class="num" id="outRahuStart">—</span><span class="dash">—</span><span class="num" id="outRahuEnd">—</span></div>
-          </div>
-          <div class="row">
-            <div class="k">யமகண்டம்</div>
-            <div class="v range"><span class="num" id="outYamaStart">—</span><span class="dash">—</span><span class="num" id="outYamaEnd">—</span></div>
-          </div>
-          <div class="row">
-            <div class="k">குளிகை</div>
-            <div class="v range"><span class="num" id="outGulikaStart">—</span><span class="dash">—</span><span class="num" id="outGulikaEnd">—</span></div>
-          </div>
+          <!-- NOTE: Rahu/Yama/Gulika removed (hidden) as requested -->
         </div>
 
         <details class="no-share">
@@ -346,7 +332,6 @@
   <script>
     const { DateTime } = luxon;
 
-    // Compact errors only
     function compactErr(msg){
       const s = String(msg || "").slice(0, 180);
       return s.replace(/\s+/g, " ").trim();
@@ -361,6 +346,117 @@
     const APP_NAME = "தமிழ் கால நேரம்";
     const DEFAULT_CITY = "Madurai";
 
+    // ---------------- PWA (installable) ----------------
+    // Manifest (in-memory; no separate file)
+    (function setupManifest(){
+      const manifest = {
+        name: APP_NAME,
+        short_name: "தமிழ் நேரம்",
+        start_url: "./",
+        scope: "./",
+        display: "standalone",
+        background_color: "#070a10",
+        theme_color: "#0b0f14",
+        icons: [
+          {
+            src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23ffffff' stop-opacity='.22'/%3E%3Cstop offset='1' stop-color='%23ffffff' stop-opacity='.06'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='10' y='10' width='108' height='108' rx='28' fill='url(%23g)' stroke='%23ffffff' stroke-opacity='.22'/%3E%3Cpath d='M64 28c-19.9 0-36 16.1-36 36s16.1 36 36 36 36-16.1 36-36-16.1-36-36-36zm3 19v19.5l15.5 9-3 5.2L61 69V47h6z' fill='%23ffffff' fill-opacity='.88'/%3E%3C/svg%3E",
+            sizes: "192x192",
+            type: "image/svg+xml"
+          }
+        ]
+      };
+      const blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("link");
+      link.rel = "manifest";
+      link.href = url;
+      document.head.appendChild(link);
+    })();
+
+    // Service worker (cache app shell). Created from Blob so still single file.
+    (async function registerSW(){
+      if(!("serviceWorker" in navigator)) return;
+
+      const swCode = `
+        const CACHE = "tamil-kalam-v2";
+        self.addEventListener("install", (e) => {
+          e.waitUntil(
+            caches.open(CACHE).then(c => c.addAll(["./"])).then(() => self.skipWaiting())
+          );
+        });
+        self.addEventListener("activate", (e) => {
+          e.waitUntil(
+            caches.keys().then(keys => Promise.all(keys.map(k => k !== CACHE ? caches.delete(k) : null)))
+              .then(() => self.clients.claim())
+          );
+        });
+        self.addEventListener("fetch", (e) => {
+          const req = e.request;
+          const url = new URL(req.url);
+
+          // Do not cache/intercept third-party APIs/CDNs
+          if (url.origin.includes("open-meteo.com") ||
+              url.origin.includes("jsdelivr.net") ||
+              url.origin.includes("googleapis.com") ||
+              url.origin.includes("gstatic.com")) {
+            return;
+          }
+
+          // For navigation requests, serve shell from cache fallback
+          if (req.mode === "navigate") {
+            e.respondWith(fetch(req).catch(() => caches.match("./")));
+            return;
+          }
+
+          // Cache-first for same-origin assets
+          e.respondWith(
+            caches.match(req).then(cached => cached || fetch(req).then(res => {
+              const copy = res.clone();
+              caches.open(CACHE).then(c => c.put(req, copy)).catch(()=>{});
+              return res;
+            }))
+          );
+        });
+      `;
+
+      try{
+        const blob = new Blob([swCode], { type: "text/javascript" });
+        const url = URL.createObjectURL(blob);
+        await navigator.serviceWorker.register(url, { scope: "./" });
+      }catch(_e){
+        // ignore
+      }
+    })();
+
+    // Install button logic
+    let deferredPrompt = null;
+    const btnInstall = document.getElementById("btnInstall");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      btnInstall.style.display = "inline-flex";
+    });
+
+    btnInstall.addEventListener("click", async () => {
+      if(!deferredPrompt) return;
+      btnInstall.disabled = true;
+      try{
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+      }finally{
+        deferredPrompt = null;
+        btnInstall.style.display = "none";
+        btnInstall.disabled = false;
+      }
+    });
+
+    window.addEventListener("appinstalled", () => {
+      deferredPrompt = null;
+      btnInstall.style.display = "none";
+    });
+
+    // ---------------- Tamil date/time + panchang ----------------
     const TAMIL_MONTHS = [
       { name: "சித்திரை",   start: { m: 4,  d: 14 }, season: "இளவேனில்" },
       { name: "வைகாசி",    start: { m: 5,  d: 15 }, season: "இளவேனில்" },
@@ -431,13 +527,6 @@
     const outMin = el("outMin");
     const outVinadi = el("outVinadi");
 
-    const outRahuStart = el("outRahuStart");
-    const outRahuEnd = el("outRahuEnd");
-    const outYamaStart = el("outYamaStart");
-    const outYamaEnd = el("outYamaEnd");
-    const outGulikaStart = el("outGulikaStart");
-    const outGulikaEnd = el("outGulikaEnd");
-
     const footNote = el("footNote");
 
     const btnNow = el("btnNow");
@@ -450,7 +539,7 @@
       cityTz: null,
       lat: null,
       lon: null,
-      sunMap: new Map() // 3-day cache
+      sunMap: new Map()
     };
 
     function clearError(){ errBox.style.display="none"; errBox.textContent=""; }
@@ -510,7 +599,7 @@
       return TAMIL_YEAR_NAMES[idx] || "—";
     }
 
-    // Panchang (fast approx)
+    // Panchang approx
     function julianDay(dtUtc){
       const y = dtUtc.year;
       const m = dtUtc.month;
@@ -553,15 +642,12 @@
       const jd = julianDay(dtUtc);
       const sunLon = sunEclLon(jd);
       const moonLon = moonEclLon(jd);
-
       const diff = fixAngle(moonLon - sunLon);
-      const t = Math.floor(diff/12) + 1; // 1..30
+      const t = Math.floor(diff/12) + 1;
       const paksha = (t <= 15) ? "வளர்பிறை" : "தேய்பிறை";
       const tName = TITHI_NAMES[t-1] || "—";
-
       const n = Math.floor(fixAngle(moonLon) / (360/27)) + 1;
       const nName = NAKSHATRA_NAMES[n-1] || "—";
-
       return { paksha, tName, nName };
     }
 
@@ -598,7 +684,6 @@
       const s0 = getSun(d0);
       const sp = getSun(dPrev);
       if(!s0 || !sp) return null;
-
       const sr0 = DateTime.fromISO(s0.sunrise, { zone: dtCity.zoneName });
       const srp = DateTime.fromISO(sp.sunrise, { zone: dtCity.zoneName });
       return (dtCity >= sr0) ? sr0 : srp;
@@ -619,29 +704,13 @@
       return { nazhigai, minuteInNazhi, saamam, vinadi: dtCity.second };
     }
 
-    // Rahu/Yama/Gulika
-    const RAHU_IDX = { 1:2, 2:7, 3:5, 4:6, 5:4, 6:3, 7:8 }; // Mon..Sun
-    const YAMA_IDX = { 1:5, 2:4, 3:3, 4:2, 5:1, 6:7, 7:6 };
-    const GULI_IDX = { 1:6, 2:5, 3:4, 4:3, 5:2, 6:1, 7:7 };
-
-    function segmentWindow(dtCity, sun, whichIdx){
-      const sr = DateTime.fromISO(sun.sunrise, { zone: dtCity.zoneName });
-      const ss = DateTime.fromISO(sun.sunset,  { zone: dtCity.zoneName });
-      const dayMin = ss.diff(sr, "minutes").minutes;
-      if(!(dayMin > 0)) return null;
-      const part = dayMin / 8;
-      const start = sr.plus({ minutes: part * (whichIdx - 1) });
-      const end   = sr.plus({ minutes: part * whichIdx });
-      return { start, end };
-    }
-    function fmtTime(dt){ return dt ? dt.toFormat("hh:mm a") : "—"; }
-
     function disclaimerText(){
       return [
         "DISCLAIMER",
         "- Tamil month/day/year: simple approximate boundary table.",
         "- Tithi/Nakshatra/Paksha: approximate sun/moon longitudes.",
-        "- Sunrise/Sunset: Open-Meteo API (used for day/night + Rahu/Yama/Gulika + last-sunrise cycle).",
+        "- Sunrise/Sunset: Open-Meteo API (used for day/night + last-sunrise cycle).",
+        "- Rahu/Yama/Gulika: hidden/removed (calendar mismatch).",
         "",
         "DEPENDENCIES",
         "1) https://geocoding-api.open-meteo.com/",
@@ -665,12 +734,10 @@
       const dPrev = dtCity.minus({ days:1 }).toISODate();
       const dNext = dtCity.plus({ days:1 }).toISODate();
 
-      // Only one visible timestamp (Selected). Share stamp is share-mode only.
       const stamp = dtCity.toFormat("dd LLL yyyy, hh:mm a");
       selectedStamp.textContent = stamp;
       shareStamp.textContent = `${state.city || DEFAULT_CITY} · ${stamp}`;
 
-      // Load sun data (3 days) when we have lat/lon
       if(state.lat != null && state.lon != null){
         try{
           await loadSun3Days(state.lat, state.lon, tz, dPrev, dNext);
@@ -679,7 +746,6 @@
         }
       }
 
-      // Calendar
       const mInfo = tamilMonthFromDate(dtCity);
       const dayNo = tamilDayNumber(dtCity, mInfo);
       const yearName = tamilYearName(dtCity);
@@ -712,27 +778,12 @@
           outMin.textContent = "—";
           outVinadi.textContent = dtCity.second;
         }
-
-        const wd = dtCity.weekday;
-        const rahu = segmentWindow(dtCity, sun, RAHU_IDX[wd]);
-        const yama = segmentWindow(dtCity, sun, YAMA_IDX[wd]);
-        const guli = segmentWindow(dtCity, sun, GULI_IDX[wd]);
-
-        outRahuStart.textContent = rahu ? fmtTime(rahu.start) : "—";
-        outRahuEnd.textContent   = rahu ? fmtTime(rahu.end)   : "—";
-        outYamaStart.textContent = yama ? fmtTime(yama.start) : "—";
-        outYamaEnd.textContent   = yama ? fmtTime(yama.end)   : "—";
-        outGulikaStart.textContent = guli ? fmtTime(guli.start) : "—";
-        outGulikaEnd.textContent   = guli ? fmtTime(guli.end)   : "—";
       }else{
         outDayNight.textContent = "—";
         outSaamamNo.textContent = "—";
         outNaz.textContent = "—";
         outMin.textContent = "—";
         outVinadi.textContent = dtCity.second;
-        outRahuStart.textContent = "—"; outRahuEnd.textContent = "—";
-        outYamaStart.textContent = "—"; outYamaEnd.textContent = "—";
-        outGulikaStart.textContent = "—"; outGulikaEnd.textContent = "—";
       }
 
       footNote.textContent = APP_NAME;
@@ -794,7 +845,6 @@
         if(navigator.canShare && navigator.canShare({ files: [file] })){
           await navigator.share({ title: APP_NAME, text: APP_NAME, files: [file] });
         } else {
-          // fallback: download
           const a = document.createElement("a");
           a.href = URL.createObjectURL(blob);
           a.download = `${safeName}.png`;
@@ -810,7 +860,7 @@
       }
     }
 
-    // UI hooks
+    // Hooks
     cityGo.addEventListener("click", () => setCity(cityInput.value, { resetToNow:true }));
     cityInput.addEventListener("keydown", (e) => { if(e.key === "Enter") setCity(cityInput.value, { resetToNow:true }); });
 
@@ -828,7 +878,6 @@
 
       await setCity(DEFAULT_CITY, { resetToNow:true });
 
-      // If API blocked: still render with device tz
       if(state.lat == null || state.lon == null){
         state.city = DEFAULT_CITY;
         cityTitle.textContent = DEFAULT_CITY;

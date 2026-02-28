@@ -19,15 +19,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Tiro+Tamil:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 
-  <!-- Luxon (timezone) -->
+  <!-- Luxon (timezone-aware date/time) -->
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
-  <!-- html2canvas (share screenshot) -->
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
     :root{
       --bg:#070a10;
-      --card:rgba(255,255,255,.06);
       --stroke:rgba(255,255,255,.10);
       --text:rgba(255,255,255,.92);
       --muted:rgba(255,255,255,.62);
@@ -47,7 +44,7 @@
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
     }
-    .wrap{max-width:760px;margin:0 auto;padding:22px 14px 40px;position:relative;}
+    .wrap{max-width:760px;margin:0 auto;padding:22px 14px 40px;}
     .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;}
     .brand{display:flex;align-items:center;gap:10px;min-width:0;}
     .logo{width:38px;height:38px;border-radius:14px;background:linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.05));border:1px solid var(--stroke);box-shadow:0 10px 28px rgba(0,0,0,.35);}
@@ -114,7 +111,7 @@
       font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
     }
 
-    /* CLEAN LIST (fix “last 4 fields out of pattern”) */
+    /* CLEAN LIST: keep ALL rows identical pattern (fix “after nazhigai out of pattern”) */
     .list{border-top:1px solid rgba(255,255,255,.07);padding:6px 16px 10px;}
     .row{
       display:flex;justify-content:space-between;gap:14px;
@@ -127,14 +124,8 @@
     .v{text-align:right;font-size:20px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .big{font-size:24px;}
     .num{font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;font-variant-numeric:tabular-nums;}
-
-    /* duration rows (Rahu/Yama/Gulika) */
-    .timeRange{
-      display:flex;justify-content:flex-end;gap:10px;align-items:baseline;
-      font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
-    }
-    .timeRange span{white-space:nowrap;}
-    .dash{opacity:.55;}
+    .range{font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;}
+    .dash{opacity:.55;padding:0 8px;}
 
     .err{
       display:none;
@@ -190,7 +181,7 @@
     body.sharing details{display:none !important;}
     body.sharing .footer{display:none !important;}
 
-    /* Share header line */
+    /* Share hint line (ONLY additional date/time display; shown ONLY in share mode) */
     .shareStamp{
       display:none;
       margin: 10px 0 0;
@@ -200,6 +191,7 @@
       font-family:"Roboto",system-ui,-apple-system,Segoe UI,sans-serif;
     }
     body.sharing .shareStamp{display:block;}
+
     @media(max-width:520px){ .gridPick{grid-template-columns:1fr;} .v{font-size:19px;} .big{font-size:22px;} }
   </style>
 </head>
@@ -215,9 +207,8 @@
           <div class="logo" aria-hidden="true"></div>
           <div class="title">
             <div class="h" id="cityTitle">தமிழ் கால நேரம்</div>
-            <div class="sub">
-              Device TZ: <span id="deviceTz">—</span> · City TZ: <span id="cityTz">—</span>
-            </div>
+            <!-- Only City timezone (no Device TZ, no "Using") -->
+            <div class="sub">City TZ: <span id="cityTz">—</span></div>
           </div>
         </div>
 
@@ -228,7 +219,7 @@
         </div>
       </div>
 
-      <!-- This line shows ONLY in share output (date/time of the displayed values) -->
+      <!-- Share-only stamp: includes selected date/time (requested) -->
       <div class="shareStamp" id="shareStamp">—</div>
 
       <div class="card">
@@ -240,15 +231,11 @@
 
           <div class="gridPick no-share">
             <input id="dtInput" class="input" type="datetime-local" />
-            <select id="modeInput" class="input" style="cursor:pointer">
-              <option value="device">Device Timezone (default)</option>
-              <option value="city">City Timezone</option>
-            </select>
+            <!-- removed mode switch to avoid confusion; always uses City TZ when available -->
           </div>
 
-          <div class="helper">
-            <div>Using: <span class="num" id="usingTz">—</span></div>
-            <div>Date: <span class="num" id="sunForDate">—</span></div>
+          <div class="helper no-share">
+            <div>Selected: <span class="num" id="selectedStamp">—</span></div>
           </div>
 
           <div class="err" id="errBox"></div>
@@ -270,23 +257,18 @@
           <div class="row"><div class="k">நிமிடம்</div><div class="v"><span class="num" id="outMin">—</span></div></div>
           <div class="row"><div class="k">வினாடி</div><div class="v"><span class="num" id="outVinadi">—</span></div></div>
 
-          <!-- NEW: Rahu/Yama/Gulika (start–end) -->
           <div class="row">
             <div class="k">ராகு காலம்</div>
-            <div class="v"><div class="timeRange"><span class="num" id="outRahuStart">—</span><span class="dash">—</span><span class="num" id="outRahuEnd">—</span></div></div>
+            <div class="v range"><span class="num" id="outRahuStart">—</span><span class="dash">—</span><span class="num" id="outRahuEnd">—</span></div>
           </div>
           <div class="row">
             <div class="k">யமகண்டம்</div>
-            <div class="v"><div class="timeRange"><span class="num" id="outYamaStart">—</span><span class="dash">—</span><span class="num" id="outYamaEnd">—</span></div></div>
+            <div class="v range"><span class="num" id="outYamaStart">—</span><span class="dash">—</span><span class="num" id="outYamaEnd">—</span></div>
           </div>
           <div class="row">
             <div class="k">குளிகை</div>
-            <div class="v"><div class="timeRange"><span class="num" id="outGulikaStart">—</span><span class="dash">—</span><span class="num" id="outGulikaEnd">—</span></div></div>
+            <div class="v range"><span class="num" id="outGulikaStart">—</span><span class="dash">—</span><span class="num" id="outGulikaEnd">—</span></div>
           </div>
-
-          <!-- keep day-cycle but in same clean pattern -->
-          <div class="row"><div class="k">Day-cycle (நாழிகை)</div><div class="v"><span class="num" id="outNazCycle">—</span> / <span class="num">60</span></div></div>
-          <div class="row"><div class="k">Day-cycle (சாமம்)</div><div class="v"><span class="num" id="outSaamamCycle">—</span> / <span class="num">8</span></div></div>
         </div>
 
         <details class="no-share">
@@ -305,13 +287,11 @@
   <script>
     const { DateTime } = luxon;
 
-    // Compact + fast: no heavy logs, no verbose error stack.
+    // Compact errors only (no heavy logs)
     function compactErr(msg){
-      const s = String(msg || "").slice(0, 220);
+      const s = String(msg || "").slice(0, 180);
       return s.replace(/\s+/g, " ").trim();
     }
-
-    // Show JS errors (compact)
     window.addEventListener("error", (e) => {
       const box = document.getElementById("errBox");
       if(!box) return;
@@ -322,7 +302,6 @@
     const APP_NAME = "தமிழ் கால நேரம்";
     const DEFAULT_CITY = "Madurai";
 
-    // Simple solar month boundary table
     const TAMIL_MONTHS = [
       { name: "சித்திரை",   start: { m: 4,  d: 14 }, season: "இளவேனில்" },
       { name: "வைகாசி",    start: { m: 5,  d: 15 }, season: "இளவேனில்" },
@@ -338,7 +317,6 @@
       { name: "பங்குனி",   start: { m: 3,  d: 14 }, season: "பின்பனி" }
     ];
 
-    // 60-year cycle (anchor Apr 14, 1987)
     const TAMIL_YEAR_NAMES = [
       "பிரபவ","விபவ","சுக்ல","பிரமோதூத","பிரஜோற்பத்தி","ஆங்கீரச",
       "ஸ்ரீமுக","பாவ","யுவ","தாது","ஈஸ்வர","வெகுதான்ய",
@@ -369,16 +347,13 @@
     const el = (id) => document.getElementById(id);
 
     const cityTitle = el("cityTitle");
-    const deviceTzEl = el("deviceTz");
     const cityTzEl = el("cityTz");
-    const usingTzEl = el("usingTz");
-    const sunForDateEl = el("sunForDate");
     const shareStamp = el("shareStamp");
+    const selectedStamp = el("selectedStamp");
 
     const cityInput = el("cityInput");
     const cityGo = el("cityGo");
     const dtInput = el("dtInput");
-    const modeInput = el("modeInput");
 
     const errBox = el("errBox");
     const infoBox = el("infoBox");
@@ -396,8 +371,6 @@
     const outNaz = el("outNaz");
     const outMin = el("outMin");
     const outVinadi = el("outVinadi");
-    const outNazCycle = el("outNazCycle");
-    const outSaamamCycle = el("outSaamamCycle");
 
     const outRahuStart = el("outRahuStart");
     const outRahuEnd = el("outRahuEnd");
@@ -412,15 +385,14 @@
     const btnRefresh = el("btnRefresh");
     const btnShare = el("btnShare");
 
-    // Minimal state
+    // State: always compute in CITY TZ when available; otherwise device tz.
     const state = {
       deviceTz: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
       city: DEFAULT_CITY,
       cityTz: null,
       lat: null,
       lon: null,
-      sunMap: new Map(), // cache only 3 days around selected date
-      lastApi: { geocoding:"—", sunrise:"—" }
+      sunMap: new Map() // 3-day cache
     };
 
     function clearError(){ errBox.style.display="none"; errBox.textContent=""; }
@@ -429,18 +401,23 @@
       errBox.textContent = `Error: ${title}${details ? " · " + compactErr(details) : ""}`;
     }
 
+    function effectiveTz(){
+      return state.cityTz || state.deviceTz;
+    }
+
     function setDtInputNow(){
-      const now = DateTime.now().setZone(state.deviceTz);
+      // IMPORTANT: "Now" should always be now in EFFECTIVE TZ (so city change updates “now”)
+      const now = DateTime.now().setZone(effectiveTz());
       dtInput.value = `${now.toFormat("yyyy-LL-dd")}T${now.toFormat("HH:mm")}`;
     }
 
     function getSelectedDateTime(){
-      const tz = (modeInput.value === "city" && state.cityTz) ? state.cityTz : state.deviceTz;
+      const tz = effectiveTz();
       if(!dtInput.value) return DateTime.now().setZone(tz);
       return DateTime.fromISO(dtInput.value, { zone: tz });
     }
 
-    // ---- Tamil calendar helpers ----
+    // Tamil helpers
     function tamilMonthFromDate(localDate){
       const y = localDate.year;
       const zone = localDate.zoneName;
@@ -448,13 +425,11 @@
         ...m,
         startDT: DateTime.fromObject({ year:y, month:m.start.m, day:m.start.d }, { zone }).startOf("day")
       }));
-
       let best = null;
       for(const c of candidates){
         if(c.startDT <= localDate && (!best || c.startDT > best.startDT)) best = c;
       }
       if(best) return best;
-
       const prevYear = y - 1;
       const panguni = TAMIL_MONTHS.find(m => m.name === "பங்குனி");
       return {
@@ -481,7 +456,7 @@
       return TAMIL_YEAR_NAMES[idx] || "—";
     }
 
-    // ---- Astronomy (approx + fast) ----
+    // Fast panchang (approx)
     function julianDay(dtUtc){
       const y = dtUtc.year;
       const m = dtUtc.month;
@@ -505,22 +480,19 @@
     }
     function moonEclLon(jd){
       const T = (jd - 2451545.0) / 36525.0;
-      const L0 = fixAngle(218.3164477 + 481267.88123421*T - 0.0015786*T*T + T*T*T/538841 - T*T*T*T/65194000);
-      const D  = fixAngle(297.8501921 + 445267.1114034*T - 0.0018819*T*T + T*T*T/545868 - T*T*T*T/113065000);
-      const M  = fixAngle(357.5291092 + 35999.0502909*T - 0.0001536*T*T);
-      const Mp = fixAngle(134.9633964 + 477198.8675055*T + 0.0087414*T*T);
+      const L0 = fixAngle(218.3164477 + 481267.88123421*T);
+      const D  = fixAngle(297.8501921 + 445267.1114034*T);
+      const M  = fixAngle(357.5291092 + 35999.0502909*T);
+      const Mp = fixAngle(134.9633964 + 477198.8675055*T);
       const Dr  = D  * Math.PI/180;
       const Mr  = M  * Math.PI/180;
       const Mpr = Mp * Math.PI/180;
-
-      // short series (fast)
       let lon = L0
         + 6.289 * Math.sin(Mpr)
         + 1.274 * Math.sin(2*Dr - Mpr)
         + 0.658 * Math.sin(2*Dr)
         - 0.186 * Math.sin(Mr)
         + 0.214 * Math.sin(2*Mpr);
-
       return fixAngle(lon);
     }
     function panchang(dtUtc){
@@ -539,10 +511,10 @@
       return { paksha, tName, nName };
     }
 
-    // ---- APIs ----
+    // APIs
     async function geocodeCity(name){
       const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=5&language=en&format=json`;
-      const r = await fetch(url, { cache: "no-cache" });
+      const r = await fetch(url, { cache:"no-cache" });
       if(!r.ok) throw new Error(`Geocoding ${r.status}`);
       const j = await r.json();
       if(!j.results || !j.results.length) throw new Error("City not found");
@@ -550,10 +522,9 @@
     }
 
     async function loadSun3Days(lat, lon, tz, dPrev, d0, dNext){
-      // Keep cache tiny: clear and load only these 3 days
       state.sunMap.clear();
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&daily=sunrise,sunset&timezone=${encodeURIComponent(tz)}&start_date=${dPrev}&end_date=${dNext}`;
-      const r = await fetch(url, { cache: "no-cache" });
+      const r = await fetch(url, { cache:"no-cache" });
       if(!r.ok) throw new Error(`Sun ${r.status}`);
       const j = await r.json();
       if(!j.daily || !j.daily.time) throw new Error("Sun data missing");
@@ -585,19 +556,18 @@
       return (dtCity >= sr && dtCity < ss);
     }
 
-    // ---- Tamil time ----
+    // Tamil time
     function tamilTime(dtCity, lastSunrise){
       const diffMin = dtCity.diff(lastSunrise, "minutes").minutes;
       const totalMin = ((diffMin % 1440) + 1440) % 1440;
       const nazhigai = Math.floor(totalMin/24) + 1;
       const minuteInNazhi = Math.floor(totalMin % 24);
       const saamam = Math.floor(totalMin/180) + 1;
-      return { totalMin, nazhigai, minuteInNazhi, saamam, vinadi: dtCity.second };
+      return { nazhigai, minuteInNazhi, saamam, vinadi: dtCity.second };
     }
 
-    // ---- Rahu/Yama/Gulika (sunrise->sunset split into 8 parts) ----
-    // Index = which 1/8 part (1..8)
-    const RAHU_IDX = { 1:2, 2:7, 3:5, 4:6, 5:4, 6:3, 7:8 }; // Mon..Sun (Luxon: Mon=1..Sun=7)
+    // Rahu/Yama/Gulika (sunrise->sunset split into 8 parts)
+    const RAHU_IDX = { 1:2, 2:7, 3:5, 4:6, 5:4, 6:3, 7:8 }; // Mon..Sun
     const YAMA_IDX = { 1:5, 2:4, 3:3, 4:2, 5:1, 6:7, 7:6 };
     const GULI_IDX = { 1:6, 2:5, 3:4, 4:3, 5:2, 6:1, 7:7 };
 
@@ -618,8 +588,8 @@
       return [
         "DISCLAIMER",
         "- Tamil month/day/year: simple approximate boundary table.",
-        "- Tithi/Nakshatra/Paksha: fast approximate sun/moon longitude.",
-        "- Sunrise/Sunset: Open-Meteo API (used for day/night, Rahu/Yama/Gulika, last-sunrise cycle).",
+        "- Tithi/Nakshatra/Paksha: approximate sun/moon longitudes.",
+        "- Sunrise/Sunset: Open-Meteo API (used for day/night + Rahu/Yama/Gulika + last-sunrise cycle).",
         "",
         "DEPENDENCIES",
         "1) https://geocoding-api.open-meteo.com/",
@@ -632,43 +602,35 @@
     async function recalcAndRender(){
       clearError();
 
+      const tz = effectiveTz();
       cityTitle.textContent = state.city || DEFAULT_CITY;
-      deviceTzEl.textContent = state.deviceTz;
       cityTzEl.textContent = state.cityTz || "—";
 
-      const usingTz = (modeInput.value === "city" && state.cityTz) ? state.cityTz : state.deviceTz;
-      usingTzEl.textContent = usingTz;
-
-      const dtLocal = getSelectedDateTime().setZone(usingTz);
-      const dtUtc = dtLocal.toUTC();
-
-      const cityZone = state.cityTz || state.deviceTz;
-      const dtCity = dtLocal.setZone(cityZone);
-
+      const dtCity = getSelectedDateTime().setZone(tz);
+      const dtUtc = dtCity.toUTC();
       const d0 = dtCity.toISODate();
       const dPrev = dtCity.minus({ days:1 }).toISODate();
       const dNext = dtCity.plus({ days:1 }).toISODate();
-      sunForDateEl.textContent = d0;
 
-      // Share stamp (shows only in share mode)
-      shareStamp.textContent = `${state.city || DEFAULT_CITY} · ${dtCity.toFormat("dd LLL yyyy, hh:mm a")} · ${cityZone}`;
+      // Only show selected date/time once (no other date/time displays)
+      const stamp = dtCity.toFormat("dd LLL yyyy, hh:mm a");
+      selectedStamp.textContent = stamp;
+      shareStamp.textContent = `${state.city || DEFAULT_CITY} · ${stamp}`;
 
-      // Load sunrise/sunset only for 3 days (tiny cache)
+      // Load sun data (3 days)
       if(state.lat != null && state.lon != null){
         try{
-          await loadSun3Days(state.lat, state.lon, cityZone, dPrev, d0, dNext);
+          await loadSun3Days(state.lat, state.lon, tz, dPrev, d0, dNext);
         }catch(e){
           showError("Sunrise/Sunset API failure", e.message);
         }
       }
 
-      // Calendar from dtCity date
+      // Calendar
       const mInfo = tamilMonthFromDate(dtCity);
       const dayNo = tamilDayNumber(dtCity, mInfo);
       const yearName = tamilYearName(dtCity);
       const weekday = WEEKDAY_TA[dtCity.weekday] || "—";
-
-      // Panchang (fast)
       const pan = panchang(dtUtc);
 
       outYear.textContent = `${yearName} ஆண்டு`;
@@ -680,7 +642,7 @@
       outDayNum.textContent = dayNo;
       outWeekday.textContent = weekday;
 
-      // Time + day/night + day-cycle
+      // Day/night + nazhigai/saamam + windows
       const sun = getSun(d0);
       if(sun){
         outDayNight.textContent = isDay(dtCity, sun) ? "பகல்" : "இரவு";
@@ -692,21 +654,14 @@
           outNaz.textContent = tt.nazhigai;
           outMin.textContent = tt.minuteInNazhi;
           outVinadi.textContent = tt.vinadi;
-
-          const nazCycle = (tt.totalMin / 24);
-          outNazCycle.textContent = nazCycle.toFixed(2);
-          outSaamamCycle.textContent = (nazCycle / 7.5).toFixed(2);
         }else{
           outSaamamNo.textContent = "—";
           outNaz.textContent = "—";
           outMin.textContent = "—";
           outVinadi.textContent = dtCity.second;
-          outNazCycle.textContent = "—";
-          outSaamamCycle.textContent = "—";
         }
 
-        // Rahu/Yama/Gulika windows
-        const wd = dtCity.weekday; // 1..7
+        const wd = dtCity.weekday;
         const rahu = segmentWindow(dtCity, sun, RAHU_IDX[wd]);
         const yama = segmentWindow(dtCity, sun, YAMA_IDX[wd]);
         const guli = segmentWindow(dtCity, sun, GULI_IDX[wd]);
@@ -717,16 +672,12 @@
         outYamaEnd.textContent   = yama ? fmtTime(yama.end)   : "—";
         outGulikaStart.textContent = guli ? fmtTime(guli.start) : "—";
         outGulikaEnd.textContent   = guli ? fmtTime(guli.end)   : "—";
-
       }else{
         outDayNight.textContent = "—";
         outSaamamNo.textContent = "—";
         outNaz.textContent = "—";
         outMin.textContent = "—";
         outVinadi.textContent = dtCity.second;
-        outNazCycle.textContent = "—";
-        outSaamamCycle.textContent = "—";
-
         outRahuStart.textContent = "—"; outRahuEnd.textContent = "—";
         outYamaStart.textContent = "—"; outYamaEnd.textContent = "—";
         outGulikaStart.textContent = "—"; outGulikaEnd.textContent = "—";
@@ -736,15 +687,13 @@
       infoBox.textContent = disclaimerText();
     }
 
-    async function setCity(cityName, { silent=false } = {}){
+    async function setCity(cityName, { resetToNow=false } = {}){
       clearError();
       const q = (cityName || "").trim();
       if(!q) return;
 
-      if(!silent){
-        cityGo.disabled = true;
-        cityGo.textContent = "Loading…";
-      }
+      cityGo.disabled = true;
+      cityGo.textContent = "Loading…";
 
       try{
         const best = await geocodeCity(q);
@@ -756,85 +705,91 @@
         cityTitle.textContent = state.city;
         cityTzEl.textContent = state.cityTz || "—";
 
+        // IMPORTANT: city change should update NOW/date context if requested
+        if(resetToNow) setDtInputNow();
+
         await recalcAndRender();
       }catch(e){
         showError("Geocoding API failure", e.message);
       }finally{
-        if(!silent){
-          cityGo.disabled = false;
-          cityGo.textContent = "Search";
-        }
+        cityGo.disabled = false;
+        cityGo.textContent = "Search";
       }
     }
 
-    async function shareScreenshot(){
+    // Share: no html2canvas. Use native share (text) or copy text.
+    async function shareText(){
       clearError();
-      const shareArea = document.getElementById("shareArea");
-      document.body.classList.add("sharing");
-      await new Promise(r => setTimeout(r, 80));
+
+      const tz = effectiveTz();
+      const dtCity = getSelectedDateTime().setZone(tz);
+      const stamp = dtCity.toFormat("dd LLL yyyy, hh:mm a");
+
+      const text = [
+        "தமிழ் கால நேரம்",
+        `${state.city || DEFAULT_CITY}`,
+        `${stamp}`,
+        "",
+        `${outYear.textContent}`,
+        `${outSeason.textContent}`,
+        `${outMonth.textContent}`,
+        `நட்சத்திரம்: ${outNakshatra.textContent}`,
+        `பிறை: ${outPaksha.textContent}`,
+        `திதி: ${outTithi.textContent}`,
+        `தேதி: ${outDayNum.textContent}`,
+        `கிழமை: ${outWeekday.textContent}`,
+        `பகல்/இரவு: ${outDayNight.textContent}`,
+        `சாமம்: ${outSaamamNo.textContent}/8`,
+        `நாழிகை: ${outNaz.textContent}/60`,
+        `நிமிடம்: ${outMin.textContent}`,
+        `வினாடி: ${outVinadi.textContent}`,
+        `ராகு காலம்: ${outRahuStart.textContent} - ${outRahuEnd.textContent}`,
+        `யமகண்டம்: ${outYamaStart.textContent} - ${outYamaEnd.textContent}`,
+        `குளிகை: ${outGulikaStart.textContent} - ${outGulikaEnd.textContent}`
+      ].join("\n");
 
       try{
-        const canvas = await html2canvas(shareArea, {
-          backgroundColor: "#070a10",
-          scale: Math.min(2, window.devicePixelRatio || 1),
-          useCORS: true
-        });
-
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 0.95));
-        if(!blob) throw new Error("Screenshot failed");
-
-        const cityZone = state.cityTz || state.deviceTz;
-        const dtLocal = getSelectedDateTime().setZone(cityZone);
-        const safeName = `${APP_NAME}-${(state.city||DEFAULT_CITY)}-${dtLocal.toFormat("yyyyLLdd-HHmm")}`
-          .replace(/[^\w\u0B80-\u0BFF\-]+/g, "_");
-
-        const file = new File([blob], `${safeName}.png`, { type: "image/png" });
-
-        if(navigator.canShare && navigator.canShare({ files: [file] })){
-          await navigator.share({ title: APP_NAME, text: APP_NAME, files: [file] });
-        } else if (navigator.share) {
-          await navigator.share({ title: APP_NAME, text: APP_NAME, url: location.href });
-        } else {
-          const a = document.createElement("a");
-          a.href = URL.createObjectURL(blob);
-          a.download = `${safeName}.png`;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          URL.revokeObjectURL(a.href);
+        if(navigator.share){
+          await navigator.share({ title: APP_NAME, text });
+        }else{
+          await navigator.clipboard.writeText(text);
+          showError("Copied", "Share not supported. Text copied to clipboard.");
         }
       }catch(e){
         showError("Share failed", e.message);
-      }finally{
-        document.body.classList.remove("sharing");
       }
     }
 
     // Events
-    cityGo.addEventListener("click", () => setCity(cityInput.value));
-    cityInput.addEventListener("keydown", (e) => { if(e.key === "Enter") setCity(cityInput.value); });
+    cityGo.addEventListener("click", () => setCity(cityInput.value, { resetToNow:true }));
+    cityInput.addEventListener("keydown", (e) => { if(e.key === "Enter") setCity(cityInput.value, { resetToNow:true }); });
 
-    btnNow.addEventListener("click", async () => { setDtInputNow(); await recalcAndRender(); });
+    btnNow.addEventListener("click", async () => {
+      setDtInputNow();
+      await recalcAndRender();
+    });
+
     btnRefresh.addEventListener("click", () => recalcAndRender().catch(e => showError("Recalc failed", e.message)));
-    btnShare.addEventListener("click", () => shareScreenshot());
+    btnShare.addEventListener("click", () => shareText());
 
     dtInput.addEventListener("change", () => recalcAndRender().catch(e => showError("Recalc failed", e.message)));
-    modeInput.addEventListener("change", () => recalcAndRender().catch(e => showError("Recalc failed", e.message)));
 
     // Init
     (async function init(){
       document.title = APP_NAME;
-      deviceTzEl.textContent = state.deviceTz;
       cityInput.value = DEFAULT_CITY;
-      setDtInputNow();
       infoBox.textContent = disclaimerText();
 
-      await setCity(DEFAULT_CITY, { silent: true });
+      // First: set default city
+      await setCity(DEFAULT_CITY, { resetToNow:true });
 
-      // If blocked network, still render without location (Rahu/Yama/Gulika unavailable)
+      // If network blocked, still show something
       if(state.lat == null || state.lon == null){
         state.city = DEFAULT_CITY;
         cityTitle.textContent = DEFAULT_CITY;
+        state.cityTz = state.deviceTz; // fallback
+        cityTzEl.textContent = state.cityTz;
+        setDtInputNow();
         await recalcAndRender();
       }
     })();

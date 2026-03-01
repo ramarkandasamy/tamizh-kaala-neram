@@ -5,31 +5,73 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#0b0f14" />
   <meta name="color-scheme" content="dark light" />
-  <title>தமிழ் கால நேரம்</title>
 
-  <!-- author info ONLY in HTML (not displayed) -->
-  <meta name="author" content="Ramar Kandasamy">
-  <meta name="email" content="ram.kabil@gmailcom">
-  <meta name="application-name" content="தமிழ் கால நேரம்">
-  <meta name="apple-mobile-web-app-title" content="தமிழ் கால நேரம்">
-  <meta name="description" content="தமிழ் கால நேரம் — நாழிகை / சாமம் / பஞ்சாங்கம்.">
+  <!-- ✅ SEO title: include primary keywords -->
+  <title>தமிழ் கால நேரம் | Tamil Time, நாழிகை, சாமம், நட்சத்திரம், திதி</title>
 
-  <!-- PWA (you said these files already exist) -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <!-- ✅ SEO description: natural, keyword-rich, not stuffed -->
+  <meta name="description" content="தமிழ் கால நேரம் கணக்கீடு — Tamil time / current time, நாழிகை, சாமம், நட்சத்திரம் (Nakshatra), திதி (Thithi), பிறப்பு நேரம் & இறப்பு நேரம். எளிய தமிழ் பஞ்சாங்கக் கணக்கீடு." />
+
+  <!-- ✅ Indexing controls -->
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+
+  <!-- ✅ Optional but recommended (set your real URL) -->
+  <link rel="canonical" href="https://ramarkandasamy.github.io/tamizh-kaala-neram/" />
+
+  <!-- ✅ Language hints -->
+  <meta http-equiv="content-language" content="ta" />
+  <link rel="alternate" hreflang="ta" href="https://ramarkandasamy.github.io/tamizh-kaala-neram/" />
+  <!-- If you add an English page later, add hreflang="en" too -->
+
+  <!-- Author (fine, but keep minimal) -->
+  <meta name="author" content="Ramar Kandasamy" />
+  <meta name="application-name" content="தமிழ் கால நேரம்" />
+  <meta name="apple-mobile-web-app-title" content="தமிழ் கால நேரம்" />
+
+  <!-- ✅ Open Graph (sharing) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ta_IN" />
+  <meta property="og:title" content="தமிழ் கால நேரம் | Tamil Time, Nakshatra, Thithi, Nazhigai" />
+  <meta property="og:description" content="Tamil time / current time கணக்கீடு — நாழிகை, சாமம், நட்சத்திரம், திதி, பிறப்பு நேரம் & இறப்பு நேரம்." />
+  <meta property="og:url" content="https://ramarkandasamy.github.io/tamizh-kaala-neram/" />
+  <meta property="og:image" content="icons/icon-512.png" />
+
+  <!-- ✅ Twitter (optional) -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="தமிழ் கால நேரம் | Tamil Time & Panchangam Calculator" />
+  <meta name="twitter:description" content="நாழிகை, சாமம், நட்சத்திரம், திதி, பிறப்பு நேரம்/இறப்பு நேரம் — தமிழ் நேர கணக்கீடு." />
+  <meta name="twitter:image" content="icons/icon-512.png" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
 
   <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Tiro+Tamil:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Tiro+Tamil:ital,wght@0,400;1,400&display=swap" rel="stylesheet" />
 
   <!-- Luxon -->
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
   <!-- html2canvas (share screenshot) -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
+  <!-- ✅ Structured data: tells Google this is a tool/app -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "தமிழ் கால நேரம்",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "All",
+    "url": "https://ramarkandasamy.github.io/tamizh-kaala-neram/",
+    "inLanguage": ["ta-IN", "en"],
+    "description": "Tamil time / current time calculator for நாழிகை, சாமம், நட்சத்திரம் (Nakshatra), திதி (Thithi), birth time and death time calculations.",
+    "keywords": "tamil time,tamil current time,nakshatra,thithi,tithi,nazhigai,samayam,tamil birth time,tamil death time,tamil panchangam"
+  }
+  </script>
   <style>
     :root{
       --bg:#070a10;

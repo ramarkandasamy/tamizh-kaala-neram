@@ -67,6 +67,7 @@
   <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
   <!-- html2canvas (share screenshot) -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swisseph@0.2.1/dist/swisseph.min.js"></script>
 
   <!-- ✅ Structured data: tells Google this is a tool/app -->
   <script type="application/ld+json">
@@ -800,8 +801,10 @@
       if(!entry) return { name:"—", meaning:"—", idx };
       return { name: entry.name, meaning: entry.meaning, idx };
     }
+    
 
     // Panchang approx
+    
     function julianDay(dtUtc){
       const y = dtUtc.year;
       const m = dtUtc.month;
@@ -813,33 +816,35 @@
       return Math.floor(365.25*(Y + 4716)) + Math.floor(30.6001*(M + 1)) + D + B - 1524.5;
     }
     function fixAngle(d){ d%=360; if(d<0) d+=360; return d; }
-    function sunEclLon(jd){
-      const T = (jd - 2451545.0) / 36525.0;
-      const L0 = fixAngle(280.46646 + 36000.76983*T + 0.0003032*T*T);
-      const M  = fixAngle(357.52911 + 35999.05029*T - 0.0001537*T*T);
-      const Mr = M * Math.PI/180;
-      const C = (1.914602 - 0.004817*T - 0.000014*T*T)*Math.sin(Mr)
-              + (0.019993 - 0.000101*T)*Math.sin(2*Mr)
-              + 0.000289*Math.sin(3*Mr);
-      return fixAngle(L0 + C);
-    }
-    function moonEclLon(jd){
-      const T = (jd - 2451545.0) / 36525.0;
-      const L0 = fixAngle(218.3164477 + 481267.88123421*T);
-      const D  = fixAngle(297.8501921 + 445267.1114034*T);
-      const M  = fixAngle(357.5291092 + 35999.0502909*T);
-      const Mp = fixAngle(134.9633964 + 477198.8675055*T);
-      const Dr  = D  * Math.PI/180;
-      const Mr  = M  * Math.PI/180;
-      const Mpr = Mp * Math.PI/180;
-      let lon = L0
-        + 6.289 * Math.sin(Mpr)
-        + 1.274 * Math.sin(2*Dr - Mpr)
-        + 0.658 * Math.sin(2*Dr)
-        - 0.186 * Math.sin(Mr)
-        + 0.214 * Math.sin(2*Mpr);
-      return fixAngle(lon);
-    }
+function sweInitOnce(){
+  if (window.__sweReady) return;
+  // Use built-in Moshier fallback (no ephemeris file download).
+  // This is still very good for Sun/Moon longitudes for Panchang use.
+  if (window.swe && swe.set_ephe_path) {
+    swe.set_ephe_path(""); // empty => Moshier
+  }
+  window.__sweReady = true;
+}
+
+// Julian Day from a Luxon DateTime in UTC
+function julianDayUTC(dtUtc){
+  return julianDay(dtUtc); // you already have julianDay(dtUtc)
+}
+
+function sunEclLon(jd){
+  sweInitOnce();
+  const flags = swe.FLG_SWIEPH | swe.FLG_SPEED; // Moshier/Swiss + speed
+  const res = swe.calc_ut(jd, swe.SUN, flags);
+  // res.longitude is apparent ecliptic longitude (degrees)
+  return fixAngle(res.longitude);
+}
+
+function moonEclLon(jd){
+  sweInitOnce();
+  const flags = swe.FLG_SWIEPH | swe.FLG_SPEED;
+  const res = swe.calc_ut(jd, swe.MOON, flags);
+  return fixAngle(res.longitude);
+}
     function panchang(dtUtc){
       const jd = julianDay(dtUtc);
       const sunLon = sunEclLon(jd);
@@ -848,7 +853,10 @@
       const t = Math.floor(diff/12) + 1;
       const paksha = (t <= 15) ? "வளர்பிறை" : "தேய்பிறை";
       const tName = TITHI_NAMES[t-1] || "—";
-      const n = Math.floor(fixAngle(moonLon) / (360/27)) + 1;
+      // Lahiri ayanamsa (sidereal correction)
+      const aya = swe.get_ayanamsa_ut(jd); // degrees
+      const moonSid = fixAngle(moonLon - aya);
+      const n = Math.floor(moonSid / (360/27)) + 1;
       const nName = NAKSHATRA_NAMES[n-1] || "—";
       return { paksha, tName, nName };
     }
